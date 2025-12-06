@@ -1,12 +1,16 @@
+# -----------------------------------------------------
+# DOCKERFILE SONAR SCANNER PHP 8.1 (CORREGIDO)
+# Solución a: Falta de openjdk-17, falta de openjdk-21 en ruta, URL de binarios expirada.
+# -----------------------------------------------------
+
 # 1. Imagen Base (PHP 8.1 - CLI)
-# Usaremos una imagen de PHP 8.1 (el mismo que la aplicación)
 FROM php:8.1-cli
 
-# 2. Instalamos las dependencias necesarias
+# 2. Instalamos las dependencias necesarias (Java 21)
 RUN apt-get update && \
-    # INSTALACIÓN CORREGIDA DE JAVA: Usamos Java 21 headless.
+    # CORRECCIÓN #1 y #2: Instalamos Java 21 headless (funciona en Debian Trixie/12)
     apt-get install -y openjdk-21-jre-headless \
-    # Instalamos el Sonar Scanner y utilidades
+    # Instalamos utilidades necesarias
     curl \
     unzip \
     git \
@@ -15,9 +19,9 @@ RUN apt-get update && \
     # Limpiamos los caches de APT
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Instalamos el Sonar Scanner CLI (ACTUALIZADO A LA VERSIÓN RECIENTE)
-# La versión 4.8.0 ya no está en la ruta. Usamos la versión 5.x.
-ARG SONAR_SCANNER_VERSION=5.0.1.3000 # Actualizado a una versión 5.x estable
+# 3. Instalamos el Sonar Scanner CLI 
+# CORRECCIÓN #3: Usamos la versión 5.0.0.2796, la última estable verificada que funciona en esta URL.
+ARG SONAR_SCANNER_VERSION=5.0.0.2796 
 RUN curl -LO https://binaries.sonarsource.com/Distribution/sonar-scanner/sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip && \
     unzip sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip -d /opt && \
     rm sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip
