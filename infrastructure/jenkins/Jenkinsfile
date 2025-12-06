@@ -14,7 +14,7 @@ pipeline {
 
         DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net'
 
-        AWS_CREDENTIALS_ID = 'aws-credentials-iam-role'
+        AWS_CREDENTIALS_ID = 'aws-credentials'
         SONARQUBE_TOKEN_ID = 'sonar-token'
 
         SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0'
