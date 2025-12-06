@@ -56,20 +56,21 @@ pipeline {
                         docker { 
                             image "${SONAR_SCANNER_IMAGE}"
                             // Montaje: /backend del workspace a /usr/src en el contenedor
-                            args "--entrypoint='' -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src --network ${DOCKER_NETWORK}"
+                            args "--entrypoint='' --network ${DOCKER_NETWORK}"
                         }
+                        directory "${BACKEND_DIR}"
                     }
                     steps {
                         script { 
                             // 🚀 PASO DE DEBUG CRÍTICO: Verificar si los archivos existen antes del escáner
                             sh """
-                                echo '--- VERIFICANDO VISIBILIDAD DE ARCHIVOS EN /usr/src ---'
-                                if [ ! -d "/usr/src/app" ]; then
-                                    echo "ERROR: La carpeta 'app' no es visible en /usr/src. Revisar montaje de volumen."
-                                    ls -l /usr/src/
-                                    exit 1
-                                fi
-                            """
+                                echo '--- VERIFICANDO VISIBILIDAD DE ARCHIVOS EN WORKSPACE ACTUAL ---'
+                                if [ ! -d "app" ]; then // <--- Ahora verifica 'app' en el directorio de trabajo (backend)
+                                    echo "ERROR: La carpeta 'app' no es visible en el WORKSPACE del contenedor. Revisar montaje de volumen."
+                                    ls -l 
+                                    exit 1
+                                fi
+                            """
                             
                             // Inyectamos las credenciales de SonarQube
                             withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
