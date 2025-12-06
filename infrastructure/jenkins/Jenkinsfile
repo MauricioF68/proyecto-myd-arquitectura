@@ -12,7 +12,7 @@ pipeline {
         // ID de credenciales de Jenkins
         AWS_CREDENTIALS_ID = 'aws-credentials'
         
-        // AÑADIDO: Imagen del escáner de PHP (Debe coincidir con la que construyas localmente)
+        // Imagen del escáner de PHP (Nombre local que construiremos)
         SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0' 
     }
 
@@ -23,12 +23,12 @@ pipeline {
             steps {
                 script {
                     echo "--- Construyendo Imagen Docker de Sonar Scanner PHP 8.1 ---"
-                    // Construye la imagen usando el Dockerfile creado en el Paso 1
-                    sh "docker build -f custom-docker/Dockerfile.sonar-scanner -t ${SONAR_SCANNER_IMAGE} ."
+                    // Construye la imagen usando el Dockerfile en infrastructure/docker
+                    sh "docker build -f infrastructure/docker/Dockerfile.sonar-scanner -t ${SONAR_SCANNER_IMAGE} ."
                 }
             }
         }
-        
+
         // ETAPA 2: CALIDAD Y SEGURIDAD
         stage('Quality & Security') {
             parallel {
@@ -38,19 +38,17 @@ pipeline {
                     steps {
                         script {
                             echo '--- Ejecutando Análisis Real de SonarQube con Scanner PHP 8.1 ---'
-                            // Agregamos un comando para asegurar que Jenkins tenga permisos de lectura sobre el código de la app
+                            
+                            // Aseguramos permisos de lectura/escritura en el host de Jenkins
                             sh "chmod -R 775 ${BACKEND_DIR}" 
                             
                             withSonarQubeEnv('SonarQube Server') {
                                 sh """
-                                # Uso de la imagen personalizada con soporte PHP 8.1
                                 docker run --rm \
                                     --network ${DOCKER_NETWORK} \
                                     -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src \
                                     ${SONAR_SCANNER_IMAGE} \
                                     -Dsonar.projectBaseDir=/usr/src 
-                                    
-                                # NOTA: La configuración de la fuente y las extensiones (.blade.php) ahora están en backend/sonar-project.properties
                                 """
                             }
                         }
@@ -60,16 +58,17 @@ pipeline {
                 // ---- ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
                 stage('Infrastructure Security (Checkov)') {
                     steps {
-                        echo '--- Ejecutando Auditoría de Terraform ---'
-                        dir("${TF_DIR}") {
-                            # CORRECCIÓN: Se usa $(pwd) para resolver la ruta del workspace
-                            sh '''
-                            docker run --rm \
-                                -v $(pwd)/../../:/tf \
-                                bridgecrew/checkov:3 \
-                                -d /tf/infrastructure/terraform \
-                                --soft-fail
-                            '''
+                        script {
+                            echo '--- Ejecutando Auditoría de Terraform ---'
+                            dir("${TF_DIR}") {
+                                sh '''
+                                docker run --rm \
+                                    -v $(pwd)/../../:/tf \
+                                    bridgecrew/checkov:3 \
+                                    -d /tf/infrastructure/terraform \
+                                    --soft-fail
+                                '''
+                            }
                         }
                     }
                 }
@@ -82,7 +81,7 @@ pipeline {
                 script {
                     echo '--- Planificando Infraestructura ---'
                     
-                    # CORRECCIÓN CRÍTICA: Inyectamos las credenciales de AWS
+                    // Inyección de credenciales de AWS
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
@@ -109,7 +108,6 @@ pipeline {
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
                         dir("${TF_DIR}") {
-                             // sh 'terraform apply tfplan'
                              echo 'Despliegue de Terraform Apply omitido por seguridad.'
                         }
                     }
