@@ -1,5 +1,7 @@
 // -----------------------------------------------------
-// JENKINSFILE PROFESIONAL v2.0 (ARQUITECTO DE SISTEMAS)
+// JENKINSFILE PROFESIONAL v3.0 (ARQUITECTO DE SISTEMAS)
+// Reordenado según solicitud del usuario:
+// checkout → build servicios → deploy → sonar al final
 // -----------------------------------------------------
 
 pipeline {
@@ -30,6 +32,20 @@ pipeline {
 
     stages {
 
+        // -----------------------------------------------------
+        // 1) CHECKOUT
+        // -----------------------------------------------------
+        stage('Checkout') {
+            steps {
+                echo "--- Realizando Checkout del Repositorio ---"
+                checkout scm
+            }
+        }
+
+        // -----------------------------------------------------
+        // 2) BUILD SERVICIOS
+        // -----------------------------------------------------
+
         stage('Build Sonar Scanner Image') {
             steps {
                 script {
@@ -39,71 +55,7 @@ pipeline {
             }
         }
 
-        stage('Quality & Security Gate') {
-            parallel {
-
-                stage('SonarQube Analysis (PHP)') {
-                    agent {
-                        docker {
-                            image "${SONAR_SCANNER_IMAGE}"
-                            args "--entrypoint='' --network ${DOCKER_NETWORK}"
-                        }
-                    }
-                    steps {
-                        dir("${BACKEND_DIR}") {
-                            script {
-
-                                sh """
-                                    echo '--- VERIFICANDO ARCHIVOS EN BACKEND ---'
-                                    if [ ! -d "app" ]; then
-                                        echo "ERROR: Carpeta app no visible en backend."
-                                        ls -l
-                                        exit 1
-                                    fi
-                                """
-
-                                withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
-                                    withSonarQubeEnv('SonarQube Server') {
-                                        sh """
-                                            echo '--- Ejecutando Análisis SonarQube ---'
-                                            sonar-scanner \\
-                                                -Dsonar.projectBaseDir=. \\
-                                                -Dsonar.sources=app,config,routes,database \\
-                                                -Dsonar.exclusions=vendor/**,storage/**,bootstrap/cache/**,public/**,node_modules/**,tests/** \\
-                                                -Dsonar.login=${SONAR_TOKEN} \\
-                                                -Dsonar.projectKey=MYD-LARAVEL-PROJECT \\
-                                                -Dsonar.projectName='MyD Cotizaciones Laravel Monolito' \\
-                                                -Dsonar.sourceEncoding=UTF-8
-                                        """
-                                    }
-                                }
-
-                                timeout(time: 20, unit: 'MINUTES') {
-                                    echo 'Esperando Quality Gate...'
-                                    waitForQualityGate abortPipeline: true
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage('Infrastructure Security (Checkov)') {
-                    agent {
-                        docker {
-                            image "${CHECKOV_IMAGE}"
-                            args "--entrypoint='' -v ${WORKSPACE}/${TF_DIR}:/tf_root"
-                        }
-                    }
-                    steps {
-                        script {
-                            echo '--- Ejecutando Auditoría de Terraform con Checkov ---'
-                            sh "checkov -d /tf_root --framework terraform --soft-fail"
-                        }
-                    }
-                }
-            }
-        }
-
+        // Terraform Plan (forma parte del build de infraestructura)
         stage('Terraform Plan') {
             agent {
                 docker {
@@ -128,6 +80,10 @@ pipeline {
                 }
             }
         }
+
+        // -----------------------------------------------------
+        // 3) DEPLOY SERVICIOS (PRIMERO OBSERVABILIDAD → AWS)
+        // -----------------------------------------------------
 
         stage('Deploy Observability') {
             steps {
@@ -161,6 +117,74 @@ pipeline {
                     ]) {
                         dir("${TF_DIR}") {
                             sh 'terraform apply -auto-approve tfplan'
+                        }
+                    }
+                }
+            }
+        }
+
+        // -----------------------------------------------------
+        // 4) SONARQUBE (AL FINAL, COMO PEDISTE)
+        // -----------------------------------------------------
+        stage('Quality & Security Gate (FINAL)') {
+            parallel {
+
+                stage('SonarQube Analysis (PHP)') {
+                    agent {
+                        docker {
+                            image "${SONAR_SCANNER_IMAGE}"
+                            args "--entrypoint='' --network ${DOCKER_NETWORK}"
+                        }
+                    }
+                    steps {
+                        dir("${BACKEND_DIR}") {
+                            script {
+
+                                sh """
+                                    echo '--- VERIFICANDO ARCHIVOS EN BACKEND ---'
+                                    if [ ! -d "app" ]; then
+                                        echo "ERROR: Carpeta app no visible en backend."
+                                        ls -l
+                                        exit 1
+                                    fi
+                                """
+
+                                withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
+                                    withSonarQubeEnv('SonarQube Server') {
+                                        sh """
+                                            echo '--- Ejecutando Análisis SonarQube ---'
+                                            sonar-scanner \\
+                                                -Dsonar.projectBaseDir=. \\
+                                                -Dsonar.sources=app,config,routes,database,resources \\
+                                                -Dsonar.exclusions=vendor/**,storage/**,bootstrap/cache/**,public/**,node_modules/**,tests/** \\
+                                                -Dsonar.login=${SONAR_TOKEN} \\
+                                                -Dsonar.projectKey=MYD-LARAVEL-PROJECT \\
+                                                -Dsonar.projectName='MyD Cotizaciones Laravel Monolito' \\
+                                                -Dsonar.sourceEncoding=UTF-8
+                                        """
+                                    }
+                                }
+
+                                timeout(time: 20, unit: 'MINUTES') {
+                                    echo 'Esperando Quality Gate...'
+                                    waitForQualityGate abortPipeline: true
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Infrastructure Security (Checkov)') {
+                    agent {
+                        docker {
+                            image "${CHECKOV_IMAGE}"
+                            args "--entrypoint='' -v ${WORKSPACE}/${TF_DIR}:/tf_root"
+                        }
+                    }
+                    steps {
+                        script {
+                            echo '--- Ejecutando Auditoría de Terraform con Checkov ---'
+                            sh "checkov -d /tf_root --framework terraform --soft-fail"
                         }
                     }
                 }
