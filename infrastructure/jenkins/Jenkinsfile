@@ -14,16 +14,18 @@ pipeline {
         
         // Imagen del escáner de PHP (Nombre local que construiremos)
         SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0' 
+        
+        // CORRECCIÓN CONECTIVIDAD: Nombre del servicio SonarQube en Docker Compose
+        SONAR_HOST_URL = 'http://sonarqube:9000' 
     }
 
     stages {
-
         // AÑADIDO: ETAPA DE CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO
         stage('Build Sonar Scanner Image') {
             steps {
                 script {
                     echo "--- Construyendo Imagen Docker de Sonar Scanner PHP 8.1 ---"
-                    // Construye la imagen usando el Dockerfile en infrastructure/docker
+                    // Nota: Asume que el contexto de build es la raíz (.), por eso -f infrastructure/docker/Dockerfile.sonar-scanner
                     sh "docker build -f infrastructure/docker/Dockerfile.sonar-scanner -t ${SONAR_SCANNER_IMAGE} ."
                 }
             }
@@ -38,17 +40,17 @@ pipeline {
                     steps {
                         script {
                             echo '--- Ejecutando Análisis Real de SonarQube con Scanner PHP 8.1 ---'
-                            
-                            // Aseguramos permisos de lectura/escritura en el host de Jenkins
                             sh "chmod -R 775 ${BACKEND_DIR}" 
                             
                             withSonarQubeEnv('SonarQube Server') {
                                 sh """
+                                # CORRECCIÓN CONECTIVIDAD: Forzamos el host a 'sonarqube' (nombre del servicio)
                                 docker run --rm \
                                     --network ${DOCKER_NETWORK} \
                                     -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src \
                                     ${SONAR_SCANNER_IMAGE} \
-                                    -Dsonar.projectBaseDir=/usr/src 
+                                    -Dsonar.projectBaseDir=/usr/src \
+                                    -Dsonar.host.url=${SONAR_HOST_URL}
                                 """
                             }
                         }
@@ -61,13 +63,14 @@ pipeline {
                         script {
                             echo '--- Ejecutando Auditoría de Terraform ---'
                             dir("${TF_DIR}") {
-                                sh '''
+                                sh """
+                                # CORRECCIÓN RUTA CHECKOV: Usamos \$WORKSPACE para montar la raíz y asegurar el path
                                 docker run --rm \
-                                    -v $(pwd)/../../:/tf \
+                                    -v ${WORKSPACE}:/tf \
                                     bridgecrew/checkov:3 \
-                                    -d /tf/infrastructure/terraform \
+                                    -d /tf/${TF_DIR} \
                                     --soft-fail
-                                '''
+                                """
                             }
                         }
                     }
@@ -75,13 +78,11 @@ pipeline {
             }
         }
 
-        // ETAPA 3: PLANIFICACIÓN DE INFRAESTRUCTURA
+        // ETAPA 3, 4 y cierre (Sin cambios)
         stage('Terraform Plan') {
             steps {
                 script {
                     echo '--- Planificando Infraestructura ---'
-                    
-                    // Inyección de credenciales de AWS
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
@@ -94,7 +95,6 @@ pipeline {
             }
         }
 
-        // ETAPA 4: DESPLIEGUE (Solo con aprobación)
         stage('Deploy to AWS') {
             input {
                 message "¿Desplegar a Producción?"
@@ -103,7 +103,6 @@ pipeline {
             steps {
                 script {
                     echo '--- Desplegando... (Simulado) ---'
-                    
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
