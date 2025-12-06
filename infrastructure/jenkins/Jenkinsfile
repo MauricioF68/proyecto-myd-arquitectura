@@ -14,18 +14,16 @@ pipeline {
         
         // Imagen del escáner de PHP (Nombre local que construiremos)
         SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0' 
-        
-        // CORRECCIÓN CONECTIVIDAD: Nombre del servicio SonarQube en Docker Compose
-        SONAR_HOST_URL = 'http://sonarqube:9000' 
     }
 
     stages {
-        // AÑADIDO: ETAPA DE CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO
+
+        // ETAPA 1: CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO
         stage('Build Sonar Scanner Image') {
             steps {
                 script {
                     echo "--- Construyendo Imagen Docker de Sonar Scanner PHP 8.1 ---"
-                    // Nota: Asume que el contexto de build es la raíz (.), por eso -f infrastructure/docker/Dockerfile.sonar-scanner
+                    // Nota: El contexto de build es la raíz (.), el Dockerfile está en infrastructure/docker/
                     sh "docker build -f infrastructure/docker/Dockerfile.sonar-scanner -t ${SONAR_SCANNER_IMAGE} ."
                 }
             }
@@ -45,34 +43,23 @@ pipeline {
                             sh "chmod -R 775 ${BACKEND_DIR}" 
                             
                             withSonarQubeEnv('SonarQube Server') {
-                                sh """
-                                # Corregido: La variable de entorno de Jenkins \$WORKSPACE se resuelve automáticamente.
-                                docker run --rm \\
-                                    --network ${DOCKER_NETWORK} \\
-                                    -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src \\
-                                    ${SONAR_SCANNER_IMAGE} \\
-                                    -Dsonar.projectBaseDir=/usr/src 
-                                """
+                                // Usamos comillas simples para evitar la interpolación de Groovy, excepto en las variables ${}
+                                // La URL del host se inyecta correctamente como -Dsonar.host.url=http://sonarqube:9000
+                                sh "docker run --rm --network ${DOCKER_NETWORK} -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src ${SONAR_SCANNER_IMAGE} -Dsonar.projectBaseDir=/usr/src"
                             }
                         }
                     }
                 }
 
                 // ---- ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
-                // ---- ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
                 stage('Infrastructure Security (Checkov)') {
                     steps {
                         script {
                             echo '--- Ejecutando Auditoría de Terraform ---'
                             dir("${TF_DIR}") {
-                                sh """
-                                # CORRECCIÓN RUTA CHECKOV: Montamos la raíz (.. / ..) y apuntamos a la subcarpeta TF.
-                                docker run --rm \
-                                    -v $(pwd)/../../:/tf \
-                                    bridgecrew/checkov:3 \
-                                    -d /tf/infrastructure/terraform \
-                                    --soft-fail
-                                """
+                                // Solución CRÍTICA: Usamos comillas simples (') para aislar el comando shell 
+                                // y forzar el uso de la sintaxis shell $(pwd) sin que Groovy interfiera.
+                                sh 'docker run --rm -v $(pwd)/../../:/tf bridgecrew/checkov:3 -d /tf/infrastructure/terraform --soft-fail'
                             }
                         }
                     }
@@ -80,11 +67,13 @@ pipeline {
             }
         }
 
-        // ETAPA 3, 4 y cierre (Sin cambios)
+        // ETAPA 3: PLANIFICACIÓN DE INFRAESTRUCTURA
         stage('Terraform Plan') {
             steps {
                 script {
                     echo '--- Planificando Infraestructura ---'
+                    
+                    // Inyección de credenciales de AWS
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
@@ -97,6 +86,7 @@ pipeline {
             }
         }
 
+        // ETAPA 4: DESPLIEGUE (Solo con aprobación)
         stage('Deploy to AWS') {
             input {
                 message "¿Desplegar a Producción?"
@@ -105,6 +95,7 @@ pipeline {
             steps {
                 script {
                     echo '--- Desplegando... (Simulado) ---'
+                    
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
