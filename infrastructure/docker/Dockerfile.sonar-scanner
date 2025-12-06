@@ -4,7 +4,7 @@ FROM php:8.1-cli
 
 # 2. Instalamos las dependencias necesarias
 RUN apt-get update && \
-    # INSTALACIÓN CORREGIDA: Usamos Java 21 headless, soportado por Debian Trixie (php:8.1-cli)
+    # INSTALACIÓN CORREGIDA DE JAVA: Usamos Java 21 headless.
     apt-get install -y openjdk-21-jre-headless \
     # Instalamos el Sonar Scanner y utilidades
     curl \
@@ -15,9 +15,9 @@ RUN apt-get update && \
     # Limpiamos los caches de APT
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Instalamos el Sonar Scanner CLI (Versión 4.8.0, compatible con Java 21)
-# Verificamos la URL oficial para la versión más reciente compatible.
-ARG SONAR_SCANNER_VERSION=4.8.0.2856
+# 3. Instalamos el Sonar Scanner CLI (ACTUALIZADO A LA VERSIÓN RECIENTE)
+# La versión 4.8.0 ya no está en la ruta. Usamos la versión 5.x.
+ARG SONAR_SCANNER_VERSION=5.0.1.3000 # Actualizado a una versión 5.x estable
 RUN curl -LO https://binaries.sonarsource.com/Distribution/sonar-scanner/sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip && \
     unzip sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip -d /opt && \
     rm sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip
