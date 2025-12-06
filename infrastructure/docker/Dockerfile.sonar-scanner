@@ -1,0 +1,26 @@
+# 1. Usamos la imagen CLI de PHP 8.1
+FROM php:8.1-cli
+
+# 2. Instalamos utilidades necesarias
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    git \
+    libxml2-dev \
+    libonig-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Instalamos extensiones de PHP que Laravel necesita para el análisis
+RUN docker-php-ext-install mbstring xml
+
+# 4. Instalamos el SonarScanner CLI
+ENV SONAR_SCANNER_VERSION 4.8.0.2856
+RUN curl --create-dirs -sSLo /usr/bin/sonar-scanner.zip \
+    https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip && \
+    unzip /usr/bin/sonar-scanner.zip -d /opt/ && \
+    rm /usr/bin/sonar-scanner.zip && \
+    ln -s /opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux/bin/sonar-scanner /usr/bin/sonar-scanner
+
+# 5. Definimos el punto de entrada
+WORKDIR /usr/src
+ENTRYPOINT ["/usr/bin/sonar-scanner"]
