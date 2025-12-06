@@ -88,14 +88,14 @@ pipeline {
                         docker { 
                             image "${CHECKOV_IMAGE}"
                             // AÑADIR: --entrypoint='' para anular el ENTRYPOINT de la imagen de Checkov
-                            args "--entrypoint='' -v ${WORKSPACE}:/tf_root"
+                            args "--entrypoint='' -v ${WORKSPACE}/${TF_DIR}:/tf_root"
                         }
                     }
                     steps {
                         script {
                             echo '--- Ejecutando Auditoría de Terraform con Checkov ---'
                             // --soft-fail: No falla el pipeline si encuentra errores de baja prioridad
-                            sh "checkov -d /tf_root/${TF_DIR} --framework terraform --soft-fail"
+                            sh "checkov -d /tf_root --framework terraform --soft-fail"
                         }
                     }
                 }
