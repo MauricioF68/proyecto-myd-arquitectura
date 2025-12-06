@@ -3,42 +3,187 @@
 // -----------------------------------------------------
 
 pipeline {
-    // Usamos 'agent any' para compatibilidad con la instalación por defecto.
-    agent any 
+    // Usamos 'agent any' para compatibilidad con la instalación por defecto.
+    agent any 
 
-    environment {
-        // Rutas de directorio
-        TF_DIR = 'infrastructure/terraform'
-        BACKEND_DIR = 'backend'
-        
-        // Configuración de Docker/Redes (Aseguramos la red compartida para las herramientas)
-        DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net'
-        
-        // ID de credenciales de Jenkins (DEBES CREARLAS EN JENKINS)
-        AWS_CREDENTIALS_ID = 'aws-credentials-iam-role' 
-        SONARQUBE_TOKEN_ID = 'sonar-token' 
-        
-        // Imagen del escáner de PHP (Nombre local que construiremos)
-        SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0' 
-        
-        // Versión de Checkov y Terraform para Docker
-        CHECKOV_IMAGE = 'bridgecrew/checkov:3'
-        TERRAFORM_IMAGE = 'hashicorp/terraform:1.6.0'
-    }
-    
-    // Configuración para limpiar agentes al finalizar el pipeline, incluso en fallo
-    post {
-        always {
-            echo 'Limpiando contenedores de observabilidad...'
-            sh 'docker compose -f docker-compose-cicd.yml down || true'
-        }
-    }
+    environment {
+        // Rutas de directorio
+        TF_DIR = 'infrastructure/terraform'
+        BACKEND_DIR = 'backend'
+        
+        // Configuración de Docker/Redes (Aseguramos la red compartida para las herramientas)
+        DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net'
+        
+        // ID de credenciales de Jenkins (DEBES CREARLAS EN JENKINS)
+        AWS_CREDENTIALS_ID = 'aws-credentials-iam-role' 
+        SONARQUBE_TOKEN_ID = 'sonar-token' 
+        
+        // Imagen del escáner de PHP (Nombre local que construiremos)
+        SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0' 
+        
+        // Versión de Checkov y Terraform para Docker
+        CHECKOV_IMAGE = 'bridgecrew/checkov:3'
+        TERRAFORM_IMAGE = 'hashicorp/terraform:1.6.0'
+    }
+    
+    // Configuración para limpiar agentes al finalizar el pipeline, incluso en fallo
+    post {
+        always {
+            echo 'Limpiando contenedores de observabilidad...'
+            sh 'docker compose -f docker-compose-cicd.yml down || true'
+        }
+    }
 
-    stages {
+    stages {
 
-        // ETAPA 1: CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO
-        stage('Build Sonar Scanner Image') {
-            steps {
-                script {
-                    echo "--- Construyendo Imagen Docker de Sonar Scanner PHP 8.1 ---"
-                    sh "docker build -f infrastructure/docker/Dockerfile.sonar-scanner -t
+        // ETAPA 1: CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO
+        stage('Build Sonar Scanner Image') {
+            steps {
+                script {
+                    echo "--- Construyendo Imagen Docker de Sonar Scanner PHP 8.1 ---"
+                    sh "docker build -f infrastructure/docker/Dockerfile.sonar-scanner -t ${SONAR_SCANNER_IMAGE} ."
+                }
+            }
+        }
+
+        // ETAPA 2: CALIDAD Y SEGURIDAD (DEVSECOPS GATE)
+        stage('Quality & Security Gate') {
+            parallel {
+
+                // ---- 2.1 ANÁLISIS SONARQUBE (PHP) ----
+                stage('SonarQube Analysis (PHP)') {
+                    agent {
+                        docker { 
+                            image "${SONAR_SCANNER_IMAGE}"
+                            // Se eliminó el mapeo manual de volumen (-v) para evitar el error de visibilidad/total 0
+                            args "--entrypoint='' --network ${DOCKER_NETWORK}"
+                        }
+                    }
+                    steps {
+                        // Se usa 'dir' para que todo el código se ejecute DENTRO de la carpeta 'backend'
+                        dir("${BACKEND_DIR}") { 
+                            script { 
+                                // 🚀 PASO DE DEBUG CRÍTICO: Verificar si los archivos existen
+                                // La verificación ahora es relativa al directorio 'backend'
+                                sh """
+                                    echo '--- VERIFICANDO VISIBILIDAD DE ARCHIVOS EN WORKSPACE ACTUAL (. es ${BACKEND_DIR}) ---'
+                                    if [ ! -d "app" ]; then
+                                        echo "ERROR: La carpeta 'app' no es visible en el WORKSPACE del contenedor. Revisar montaje de volumen."
+                                        ls -l 
+                                        exit 1
+                                    fi
+                                """
+                                
+                                // Inyectamos las credenciales de SonarQube
+                                withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
+                                    withSonarQubeEnv('SonarQube Server') {
+                                        sh """
+                                            echo '--- Ejecutando Análisis Real de SonarQube ---'
+                                            sonar-scanner \\
+                                                -Dsonar.projectBaseDir=. \\ // Ajustado al directorio actual (backend)
+                                                -Dsonar.sources=app,config,routes,database \\
+                                                -Dsonar.exclusions=vendor/**,storage/**,bootstrap/cache/**,public/**,node_modules/**,tests/** \\
+                                                -Dsonar.login=${SONAR_TOKEN} \\
+                                                -Dsonar.projectKey=MYD-LARAVEL-PROJECT \\
+                                                -Dsonar.projectName='MyD Cotizaciones Laravel Monolito' \\
+                                                -Dsonar.sourceEncoding=UTF-8
+                                        """
+                                    }
+                                }
+                                
+                                // 🔑 El Quality Gate DEBE ejecutarse aquí.
+                                timeout(time: 15, unit: 'MINUTES') {
+                                    echo 'Esperando Quality Gate dentro del contenedor con acceso a la red CICD...'
+                                    waitForQualityGate abortPipeline: true
+                                }
+                            
+                            } // Cierra bloque script
+                        } // Cierra bloque dir
+                    }
+                }
+
+                // ---- 2.2 ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
+                stage('Infrastructure Security (Checkov)') {
+                    agent {
+                        // Usamos la imagen oficial de Checkov para IaC Security
+                        docker { 
+                            image "${CHECKOV_IMAGE}"
+                            // Se mantiene el mapeo de volumen de Terraform original
+                            args "--entrypoint='' -v ${WORKSPACE}/${TF_DIR}:/tf_root"
+                        }
+                    }
+                    steps {
+                        script {
+                            echo '--- Ejecutando Auditoría de Terraform con Checkov ---'
+                            // --soft-fail: No falla el pipeline si encuentra errores de baja prioridad
+                            sh "checkov -d /tf_root --framework terraform --soft-fail"
+                        }
+                    }
+                }
+            }
+        }
+        
+        // ETAPA 3: PLANIFICACIÓN DE INFRAESTRUCTURA (IaC)
+        stage('Terraform Plan') {
+            agent {
+                // Usamos la imagen oficial de Terraform para aislar la herramienta
+                docker { 
+                    image "${TERRAFORM_IMAGE}"
+                }
+            }
+            steps {
+                script {
+                    echo '--- Planificando Infraestructura Free Tier ---'
+                    
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    ]) {
+                        dir("${TF_DIR}") {
+                            // Inicialización con S3 Backend (DEBES CREAR EL BUCKET MANUALMENTE)
+                            sh 'terraform init -backend-config="bucket=myd-tf-state-bucket-unique" -backend-config="key=myd/terraform.tfstate" -input=false' 
+                            sh 'terraform plan -out=tfplan' 
+                        }
+                    }
+                }
+            }
+        }
+
+        // ETAPA 4: DESPLIEGUE A OBS. (PROMETHEUS/GRAFANA/LOKI)
+        stage('Deploy Observability') {
+            steps {
+                script {
+                    echo '--- Desplegando Contenedores de Observabilidad ---'
+                    // Levanta Prometheus, Grafana y Loki.
+                    sh 'docker compose -f docker-compose-cicd.yml up -d'
+                    echo 'Observabilidad en ejecución. Accede a Grafana en http://localhost:3000'
+                }
+            }
+        }
+        
+        // ETAPA 5: DESPLIEGUE A AWS (Solo con aprobación humana)
+        stage('Deploy to AWS') {
+            input {
+                message "¿Aplicar el plan de Terraform a la infraestructura Free Tier? (Revisa el Plan antes)"
+                ok "Sí, aplicar"
+            }
+            agent {
+                docker { 
+                    image "${TERRAFORM_IMAGE}"
+                }
+            }
+            steps {
+                script {
+                    echo '--- Aplicando plan de Infraestructura ---'
+                    
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    ]) {
+                        dir("${TF_DIR}") {
+                            sh 'terraform apply -auto-approve tfplan'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
