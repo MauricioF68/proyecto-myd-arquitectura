@@ -58,17 +58,18 @@ pipeline {
                 }
 
                 // ---- ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
+                // ---- ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
                 stage('Infrastructure Security (Checkov)') {
                     steps {
                         script {
                             echo '--- Ejecutando Auditoría de Terraform ---'
                             dir("${TF_DIR}") {
                                 sh """
-                                # CORRECCIÓN RUTA CHECKOV: Usamos \$WORKSPACE para montar la raíz y asegurar el path
+                                # CORRECCIÓN RUTA CHECKOV: Montamos la raíz (.. / ..) y apuntamos a la subcarpeta TF.
                                 docker run --rm \
-                                    -v ${WORKSPACE}:/tf \
+                                    -v $(pwd)/../../:/tf \
                                     bridgecrew/checkov:3 \
-                                    -d /tf/${TF_DIR} \
+                                    -d /tf/infrastructure/terraform \
                                     --soft-fail
                                 """
                             }

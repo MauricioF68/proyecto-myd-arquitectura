@@ -1,16 +1,20 @@
 # 1. Usamos la imagen CLI de PHP 8.1
 FROM php:8.1-cli
 
-# 2. Instalamos utilidades necesarias
-RUN apt-get update && apt-get install -y \
+# 2. Instalamos Java 17, Curl, Unzip, Git, y librerías PHP
+RUN apt-get update && \
+    # Instalar Java 17 (JRE)
+    apt-get install -y openjdk-17-jre \
+    # Instalar utilidades necesarias
     curl \
     unzip \
     git \
     libxml2-dev \
     libonig-dev \
+    # Limpiamos
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Instalamos extensiones de PHP que Laravel necesita para el análisis
+# 3. Instalamos extensiones de PHP (mbstring y xml)
 RUN docker-php-ext-install mbstring xml
 
 # 4. Instalamos el SonarScanner CLI
