@@ -82,7 +82,7 @@ pipeline {
                 script {
                     echo '--- Planificando Infraestructura ---'
                     
-                    // CORRECCIÓN CRÍTICA: Inyectamos las credenciales de AWS
+                    # CORRECCIÓN CRÍTICA: Inyectamos las credenciales de AWS
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
