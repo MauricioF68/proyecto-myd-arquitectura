@@ -1,5 +1,5 @@
 // -----------------------------------------------------
-// JENKINSFILE PROFESIONAL v2.0 (ARQUITECTO DE SISTEMAS)
+// JENKINSFILE PROFESIONAL v2.0 (ARQUITECTO DE SISTEMAS) - CORREGIDO
 // -----------------------------------------------------
 
 pipeline {
@@ -36,7 +36,7 @@ pipeline {
 
     stages {
 
-        // ETAPA 1: CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO (CORREGIDO)
+        // ETAPA 1: CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO
         stage('Build Sonar Scanner Image') {
             steps {
                 script {
@@ -53,31 +53,38 @@ pipeline {
                 // ---- 2.1 ANÁLISIS SONARQUBE (PHP) ----
                 stage('SonarQube Analysis (PHP)') {
                     agent {
-                            docker { 
-                                image "${SONAR_SCANNER_IMAGE}"
-                                // AÑADIR: --entrypoint='' para anular el ENTRYPOINT del Dockerfile
-                                args "--entrypoint='' -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src --network ${DOCKER_NETWORK}"
-                            }
+                        docker { 
+                            image "${SONAR_SCANNER_IMAGE}"
+                            // Argumentos Docker: entrypoint vacío, volumen /backend a /usr/src, y conexión a la red.
+                            args "--entrypoint='' -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src --network ${DOCKER_NETWORK}"
                         }
+                    }
                     steps {
-                        // Inyectamos las credenciales de SonarQube
-                        withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
-                            withSonarQubeEnv('SonarQube Server') {
-                                sh """
-                                    echo '--- Ejecutando Análisis Real de SonarQube ---'
-                                    sonar-scanner \
-                                        -Dsonar.projectBaseDir=/usr/src \
-                                        -Dsonar.login=${SONAR_TOKEN} \
-                                        -Dsonar.projectKey=MYD-LARAVEL-PROJECT \
-                                        -Dsonar.projectName='MyD Cotizaciones Laravel Monolito' \
-                                        -Dsonar.sourceEncoding=UTF-8
-                                """
+                        script { // Inicia un bloque script para agrupar comandos
+
+                            // Inyectamos las credenciales de SonarQube
+                            withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
+                                withSonarQubeEnv('SonarQube Server') {
+                                    sh """
+                                        echo '--- Ejecutando Análisis Real de SonarQube ---'
+                                        # Nota: El archivo sonar-project.properties en /usr/src (backend) manejará la mayoría de las configuraciones.
+                                        sonar-scanner \\
+                                            -Dsonar.projectBaseDir=/usr/src \\
+                                            -Dsonar.login=${SONAR_TOKEN} \\
+                                            -Dsonar.projectKey=MYD-LARAVEL-PROJECT \\
+                                            -Dsonar.projectName='MyD Cotizaciones Laravel Monolito' \\
+                                            -Dsonar.sourceEncoding=UTF-8
+                                    """
+                                }
                             }
-                        }
-                        // Espera el Quality Gate (si el Quality Gate de SonarQube falla, el pipeline se detiene)
-                        timeout(time: 15, unit: 'MINUTES') {
-                            waitForQualityGate abortPipeline: true
-                        }
+                            
+                            // 🚀 CORRECCIÓN CLAVE: Mover el waitForQualityGate DENTRO del agente Docker.
+                            timeout(time: 15, unit: 'MINUTES') {
+                                echo 'Esperando Quality Gate dentro del contenedor con acceso a la red CICD...'
+                                waitForQualityGate abortPipeline: true
+                            }
+                        
+                        } // Cierra bloque script
                     }
                 }
 
