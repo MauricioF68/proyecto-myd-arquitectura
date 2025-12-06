@@ -1,0 +1,265 @@
+/* =================================================================== */
+/* ============= ESTILOS PARA LA PÁGINA DE REGISTRO ================== */
+/* =================================================================== */
+
+/* --- Importación de Fuente y Variables Globales --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+    --primary-color: #0a58a7;
+    --secondary-color: #fca311;
+    --dark-blue: #1c3d5e;
+    --dark-bg: #141414;
+    --text-light: #f0f0f0;
+    --text-muted: #6c757d;
+}
+
+/* --- Fondo Dinámico y Estilos Base --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: #0d1117;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    overflow: hidden;
+    position: relative;
+}
+
+/* --- Formas Abstractas de Fondo (Igual que en el login) --- */
+body::before,
+body::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    border-radius: 9999px;
+    filter: blur(100px);
+}
+
+body::before {
+    width: 400px;
+    height: 250px;
+    background-color: var(--primary-color);
+    top: -50px;
+    right: -100px;
+    transform: rotate(30deg);
+    animation: spin 20s linear infinite alternate;
+}
+
+body::after {
+    width: 350px;
+    height: 200px;
+    background-color: var(--secondary-color);
+    bottom: -50px;
+    left: -100px;
+    transform: rotate(-30deg);
+    animation: spin 25s linear infinite alternate-reverse;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg) scale(1); }
+    to { transform: rotate(90deg) scale(1.2); }
+}
+
+/* --- Contenedor y Tarjeta del Formulario --- */
+.auth-wrapper { /* Usamos un nombre genérico */
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-card {
+    background-color: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(20px);
+    padding: 2.5rem;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- Cabecera de la Tarjeta --- */
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* --- Estilos del Formulario --- */
+.auth-form > div { margin-bottom: 1.25rem; }
+.auth-form label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; }
+
+.input-group {
+    position: relative;
+}
+.input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.75rem;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: #1e293b;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.auth-form input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(252, 163, 17, 0.25);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* --- Opciones y Enlaces --- */
+.form-links {
+    text-align: right;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}
+.form-links a {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.form-links a:hover {
+    color: var(--secondary-color);
+}
+
+/* =================================================================== */
+/* ============= NAVEGACIÓN SUPERIOR PARA AUTH ======================= */
+/* =================================================================== */
+
+.auth-top-nav {
+    position: fixed; /* O 'absolute' si prefieres */
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
+    z-index: 10;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.2rem;
+    background-color: rgba(30, 41, 59, 0.5);
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* --- Botón de Envío con Gradiente --- */
+.submit-button {
+    background-image: linear-gradient(to right, var(--primary-color), #3b82f6);
+    color: #fff;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+}
+
+/* =================================================================== */
+/* ================ ESTILOS RESPONSIVOS PARA REGISTRO ================ */
+/* =================================================================== */
+
+@media (max-width: 768px) {
+    /* Hacemos las formas de fondo un poco más pequeñas */
+    body::before,
+    body::after {
+        filter: blur(80px); /* Menos desenfoque para que no consuma tantos recursos */
+    }
+
+    /* --- Ajuste Clave para la Navegación Superior --- */
+    .auth-top-nav {
+        padding: 1rem; /* Reducimos el padding */
+    }
+
+    /* Ocultamos el texto de los enlaces y dejamos solo los iconos */
+    .nav-link span {
+        display: none;
+    }
+
+    /* Hacemos los botones de icono un poco más redondos y pequeños */
+    .nav-link {
+        padding: 0.7rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* --- Ajustes para la Tarjeta de Registro --- */
+    .auth-wrapper {
+        max-width: 100%; /* Permitimos que ocupe todo el ancho disponible */
+    }
+    
+    .auth-card {
+        padding: 2rem 1.5rem; /* Reducimos el padding interno */
+    }
+
+    .auth-header h2 {
+        font-size: 1.6rem; /* Título un poco más pequeño */
+    }
+
+    .auth-form input[type="text"],
+    .auth-form input[type="email"],
+    .auth-form input[type="password"] {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+}

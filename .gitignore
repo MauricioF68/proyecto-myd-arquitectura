@@ -1,0 +1,18 @@
+# --- Terraform (NUNCA SUBIR ESTO) ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# --- Laravel / PHP ---
+backend/vendor/
+backend/node_modules/
+backend/public/storage
+backend/storage/*.key
+backend/.env
+
+# --- Sistema / IDE ---
+.vscode/
+.idea/
+**/*.log
+**/*.tmp

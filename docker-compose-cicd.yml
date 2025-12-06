@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # --- SERVIDOR JENKINS (El Cerebro) ---
+  jenkins:
+    build: 
+      context: ./infrastructure/docker
+      dockerfile: Dockerfile.jenkins
+    container_name: myd_jenkins
+    privileged: true
+    user: root
+    ports:
+      - "8081:8080"  # Puerto web de Jenkins
+      - "50001:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      # TRUCO CLAVE: Le prestamos el Docker de tu Windows al Jenkins
+      - /var/run/docker.sock:/var/run/docker.sock 
+      # Mapeamos el código del proyecto dentro de Jenkins
+      - ./:/var/jenkins_home/workspace/myd-project
+    networks:
+      - cicd-net
+
+  # --- SERVIDOR SONARQUBE (La Calidad) ---
+  sonarqube:
+    image: sonarqube:community
+    container_name: myd_sonar
+    ports:
+      - "9000:9000" # Puerto web de Sonar
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_logs:/opt/sonarqube/logs
+    networks:
+      - cicd-net
+
+networks:
+  cicd-net:
+    driver: bridge
+
+volumes:
+  jenkins_home:
+  sonar_data:
+  sonar_logs:

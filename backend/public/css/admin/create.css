@@ -1,0 +1,159 @@
+/* =================================================================== */
+/* ============= ESTILOS CENTRALES PARA FORMULARIOS ADMIN ============ */
+/* =================================================================== */
+
+/* --- Contenedor Principal y Cabecera --- */
+.form-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header .page-title {
+    margin: 0;
+}
+
+.btn-back {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+/* --- Estructura y Campos del Formulario --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1; /* Ocupa todo el ancho */
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #4a5568; /* Un borde un poco más visible */
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: #3c4251;
+    color: var(--text-light);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(252, 163, 17, 0.25);
+}
+
+/* --- Selector de Archivos Personalizado --- */
+.custom-file-input-wrapper {
+    width: 100%;
+}
+.custom-file-input-label {
+    /* Propiedades añadidas para centrar */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    /* Le damos una altura fija para que ambos recuadros sean idénticos */
+    height: 150px; 
+    
+    /* Estilos que ya tenías */
+    background-color: #3c4251;
+    border: 2px dashed #4a5568;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+.custom-file-input-label:hover {
+    border-color: var(--primary-color);
+    background-color: #4a5568;
+}
+.custom-file-input-label i {
+    font-size: 2rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.75rem;
+}
+.custom-file-input-label span {
+    display: block;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+.custom-file-input-wrapper input[type="file"] {
+    display: none; /* Ocultamos el input real */
+}
+.file-name-display {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* --- Acciones del Formulario --- */
+.form-actions {
+    grid-column: 1 / -1;
+    text-align: right;
+    margin-top: 1rem;
+}
+.btn-primary {
+    background-color: var(--secondary-color);
+    color: var(--dark-blue);
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(252, 163, 17, 0.2);
+}

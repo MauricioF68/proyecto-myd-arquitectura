@@ -1,0 +1,256 @@
+/* =================================================================== */
+/* ============== ESTILOS PARA LA GESTIÓN DE PROYECTOS =============== */
+/* =================================================================== */
+
+/* --- Cabecera de Página (Título, Filtros y Botón Principal) --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Para responsividad */
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.page-header .page-title {
+    margin: 0; /* Anulamos el margen del estilo general */
+}
+
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* --- Formulario de Filtros --- */
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--card-bg);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.filter-form .form-group {
+    margin: 0;
+}
+.filter-form label {
+    display: none; /* Ocultamos las etiquetas para un diseño más limpio */
+}
+.filter-form input,
+.filter-form select {
+    background-color: #3c4251;
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-family: 'Poppins', sans-serif;
+}
+.filter-form input:focus,
+.filter-form select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+.filter-form .btn-search {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+.filter-form .btn-search:hover {
+    background-color: #0d6efd;
+}
+
+/* --- Botón de Crear Nuevo --- */
+.btn-create {
+    background-color: var(--secondary-color);
+    color: var(--dark-blue);
+    padding: 0.6rem 1.2rem;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(252, 163, 17, 0.2);
+}
+
+/* --- Grid de Tarjetas de Proyecto --- */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.project-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+.card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+.card-content {
+    padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.card-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: #fff;
+    font-size: 1.2rem;
+}
+.card-description, .card-client, .card-meta {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0 0 0.5rem 0;
+}
+.card-client { font-weight: 500; }
+.card-actions {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: auto;
+}
+.card-actions a, .card-actions button {
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+.btn-edit { color: var(--primary-color); }
+.btn-edit:hover { color: #3b82f6; }
+.btn-delete { color: #f87171; }
+.btn-delete:hover { color: #ef4444; }
+
+/* --- Animaciones de Entrada --- */
+.fade-in-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.fade-in-item.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Mensaje de Éxito --- */
+.success-message {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #a7f3d0;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+}
+/* =================================================================== */
+/* ============== ESTILOS PARA FILTROS AVANZADOS ===================== */
+/* =================================================================== */
+
+/* --- Botón para alternar los filtros --- */
+.btn-toggle-filters {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    font-family: 'Poppins', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-toggle-filters:hover {
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+/* --- Panel de Filtros Avanzados --- */
+.advanced-filters-panel {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    
+    /* Lógica para ocultar/mostrar */
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.advanced-filters-panel.is-visible {
+    max-height: 500px; /* Un valor lo suficientemente grande */
+    opacity: 1;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-width: 1px;
+}
+
+.advanced-filters-panel .filter-form {
+    background: none;
+    border: none;
+    padding: 0;
+    flex-wrap: wrap; /* Permite que los filtros se ajusten */
+}
+
+.advanced-filters-panel .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.advanced-filters-panel .form-group label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+/* --- Botón para Limpiar Filtros --- */
+.btn-clear-filters {
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+.btn-clear-filters:hover {
+    color: #fff;
+}

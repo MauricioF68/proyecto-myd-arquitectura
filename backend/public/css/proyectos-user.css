@@ -1,0 +1,771 @@
+/* --- CONFIGURACIÓN GLOBAL Y FUENTES --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+    --primary-color: #0a58a7; /* Azul corporativo */
+    --secondary-color: #fca311; /* Naranja para acentos */
+    --dark-blue: #1c3d5e;
+    --light-bg: #0a58a7;
+    --dark-bg: #1c3d5e;  /* Un negro menos puro, más suave */
+    --text-light: #f0f0f0;
+    --text-dark: #333;
+    --text-muted: #f0f0f0;
+}
+ 
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    line-height: 1.6;
+
+}
+
+.main-content {
+    /* El padding del header se maneja con margin-top aquí */
+    margin-top: 80px;
+    
+}
+.section {
+    padding: 6rem 1rem; /* Padding base para todas las secciones */
+    position: relative;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* --- NUEVO: Estilos para el encabezado de sección con subtítulo --- */
+.section-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+
+
+/* --- SECCIÓN DE INTRODUCCIÓN --- */
+.projects-intro-section {
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    border-radius: 16px;
+    padding: 4rem;
+    margin-bottom: 4rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.intro-content {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.projects-intro-text {
+    flex: 1;
+}
+
+.projects-intro-text h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white; /* Color legible sobre fondo oscuro */
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.projects-intro-text p {
+    color: var(--text-light);
+    opacity: 0.8;
+    margin-bottom: 2rem;
+    max-width: 50ch; /* Mejora la legibilidad */
+}
+
+.counters {
+    display: flex;
+    gap: 3rem;
+}
+
+.counter-item {
+    text-align: center;
+}
+
+.counter-item span {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    display: block;
+}
+
+.counter-item p {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.projects-intro-images {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.projects-intro-images img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    object-fit: cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.projects-intro-images img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.projects-intro-images img:nth-child(1) {
+    grid-row: 1 / 3;
+    height: 100%;
+}
+.projects-intro-images img:nth-child(2) {
+    align-self: end;
+}
+/* ================================================================= */
+/* ============= ESTILOS PARA UN FOOTER RESPONSIVO ============= */
+/* ================================================================= */
+
+.footer {
+    /* Usando las variables de color que ya tienes definidas */
+    background-color: var(--dark-blue); 
+    color: var(--text-light);
+    text-align: center;
+    padding: 2.5rem 1rem;
+    line-height: 1.7;
+    margin-top: 2rem; /* Espacio opcional para separarlo del contenido superior */
+}
+
+.footer p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+.footer a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    word-break: break-all; /* Ayuda a que los emails largos no rompan el layout */
+}
+
+.footer a:hover {
+    color: #fff;
+}
+
+
+/* --- Ajustes para Tablets y Móviles --- */
+@media (max-width: 768px) {
+    .footer {
+        padding: 2rem 1.5rem; /* Menos padding vertical, más lateral */
+        margin-top: 0; /* En móvil, a menudo se ve mejor sin margen superior */
+    }
+
+    .footer p {
+        font-size: 0.85rem; /* Letra más pequeña para que quepa mejor */
+        line-height: 1.6;
+    }
+}
+
+
+
+
+/* --- CARRUSEL DE LOGOS --- */
+.client-logos-container {
+    overflow: hidden;
+    position: relative;
+    padding: 1rem 0;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+}
+
+.logos-track {
+    display: flex;
+    width: calc(200px * 10);
+    animation: infinite-scroll 40s linear infinite;
+}
+
+.logos-track figure {
+    width: 200px;
+    margin: 0;
+    padding: 0 40px;
+    flex-shrink: 0;
+}
+
+.logos-track img {
+   max-width: 120px;   
+    mix-blend-mode: multiply;
+    max-height: 60px;
+    object-fit: contain;
+    filter: grayscale(10%);
+    opacity: 0.6;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.logos-track:hover {
+    animation-play-state: paused;
+}
+
+.logos-track figure:hover img {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+/* --- Carrusel de Logos --- */
+.logos-carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 30px 0;
+}
+
+.logos-carousel-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 25s linear infinite;
+}
+
+.logo-slide {
+    min-width: 150px; /* tamaño fijo de cada "slide" */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.logo-slide img {
+    max-width: 120px;
+    max-height: 60px;
+    object-fit: contain;
+    filter: grayscale(100%);
+    opacity: 0.6;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.logo-slide img:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+
+@keyframes infinite-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+/* --- CUADRÍCULA DE PROYECTOS (MODIFICADO Y MEJORADO) --- */
+.projects-gallery-section {
+    background-color: var(--text-light); /* Color solicitado */
+    color: var(--text-dark); /* Texto oscuro */
+    margin-top: -100px; /* Sube la sección para la transición */
+    padding-top: calc(6rem + 100px); /* Compensa el margen negativo */
+    
+}
+.section--light .section-subtitle {
+    color: #0a58a7;
+}
+.section--light .section-title {
+    color: #0a58a7;
+}
+.section--light .btn-view-all {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+.section--light .btn-view-all:hover {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 6px 18px rgba(10, 88, 167, 0.25);
+}
+
+
+.proyectos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem; /* --- MODIFICADO --- Más espaciado */
+}
+
+.proyecto-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* --- MODIFICADO --- Sombra más suave */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+}
+
+.proyecto-card:hover {
+    transform: translateY(-10px); /* --- MODIFICADO --- Efecto más pronunciado */
+    box-shadow: 0 15px 25px rgba(0,0,0,0.12);
+}
+
+/* --- NUEVO: Contenedor de la imagen para efecto zoom --- */
+.proyecto-card-image {
+    margin: 0;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.proyecto-card img {
+    width: 100%;
+    height: 100%; /* --- MODIFICADO --- Para llenar el contenedor */
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.proyecto-card:hover img {
+    transform: scale(1.05); /* Aplica el zoom a la imagen dentro del contenedor */
+}
+
+.proyecto-card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* --- NUEVO: Estilos para la metadata (Empresa y Fecha) --- */
+.proyecto-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #0a58a7;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meta-item svg {
+    stroke-width: 2.5px;
+    color: var(--secondary-color);
+    flex-shrink: 0;
+}
+
+/* --- MODIFICADO: Ajustes de jerarquía en el contenido --- */
+.proyecto-card-content h3 {
+    margin: 0 0 0.75rem 0;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    line-height: 1.4;
+}
+
+.proyecto-card-content p {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-dark); /* Color de texto más oscuro para mejor contraste */
+    font-size: 0.95rem;
+    flex-grow: 1;
+}
+
+.read-more {
+    color: var(--secondary-color);
+    font-weight: 600;
+    align-self: flex-end;
+    transition: color 0.3s ease;
+}
+
+.proyecto-card:hover .read-more {
+    color: var(--dark-blue);
+}
+
+/* --- NUEVO: Estilos para el botón 'Ver Todos' y su contenedor --- */
+.view-all-container {
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.btn-view-all {
+    display: inline-block;
+    padding: 0.8rem 2.5rem;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-view-all:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(10, 88, 167, 0.25);
+}
+
+/* --- NUEVO: Estilo para el mensaje de 'No hay proyectos' --- */
+.no-projects-message {
+    text-align: center;
+    padding: 3rem;
+    background-color: #fff;
+    border-radius: 8px;
+    color: var(--text-muted);
+    border: 1px dashed #ddd;
+}
+
+/* =================================================================== */
+/* ============= SECCIÓN PROYECTOS REALIZADOS ======================== */
+/* =================================================================== */
+
+.proyectos-realizados-section {
+    padding: 4rem 0;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Encabezado con título y botón "ver todo" */
+.section-header-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-header-inline h2 {
+    font-size: 2rem;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.btn-ver-todo {
+    background-color: #0a58a7;
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-ver-todo:hover {
+    background-color: #e0e0e0;
+    color: var(--text-dark);
+}
+
+/* Cuadrícula de tarjetas */
+.realizados-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+/* Estructura de la Tarjeta */
+.realizado-card {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.realizado-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor de la imagen (clave para posicionar overlays) */
+.card-image-container {
+    position: relative;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+}
+
+.card-bg-image {
+    display: block;
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.realizado-card:hover .card-bg-image {
+    transform: scale(1.05);
+}
+
+/* Logo circular de la empresa */
+.card-logo {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 50%); /* El truco para que quede mitad afuera */
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background-color: #fff; /* Fondo por si el logo es transparente */
+    object-fit: contain; /* Para que el logo no se deforme */
+    padding: 5px; /* Pequeño espacio interno */
+}
+
+/* Overlay de Hover (inicialmente invisible) */
+.card-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2));
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    display: flex;
+    align-items: flex-end; /* Alinea el contenido abajo */
+    padding: 1.5rem;
+}
+
+.realizado-card:hover .card-hover-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay-content {
+    color: #fff;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.4s ease 0.1s, opacity 0.4s ease 0.1s;
+    
+    /* --- LÍNEAS A AÑADIR --- */
+    max-height: 100%; /* Asegura que no se desborde del padding */
+    overflow-y: auto; /* ¡La magia está aquí! */
+    padding-right: 10px; /* Espacio para que el scrollbar no pegue al texto */
+}
+
+.overlay-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overlay-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.overlay-content::-webkit-scrollbar-thumb {
+  background-color: var(--secondary-color);
+  border-radius: 10px;
+}
+
+.realizado-card:hover .overlay-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.overlay-date {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--secondary-color); /* Usamos el color de acento */
+    margin-bottom: 0.5rem;
+}
+
+.overlay-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+
+/* Contenido inferior de la tarjeta */
+.card-content {
+    padding: 1.5rem;
+    padding-top: calc(80px / 2 + 1.5rem); /* Padding superior = mitad del logo + padding normal */
+    text-align: center;
+}
+
+.card-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #0a58a7;
+    margin-bottom: 0.75rem;
+}
+
+.card-content h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.4rem;
+    color: var(--dark-blue);
+}
+
+.card-content .card-company {
+    margin: 0;
+    font-size: 1rem;
+    color: #0a58a7;
+}
+
+
+/* --- RESPONSIVIDAD --- */
+@media (max-width: 992px) {
+    .intro-content {
+        flex-direction: column-reverse; /* Las imágenes pasan arriba */
+        text-align: center;
+    }
+    .projects-intro-text p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .counters {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+    .projects-intro-section {
+        padding: 2.5rem 1.5rem;
+    }
+    .projects-intro-text h1 {
+        font-size: 2.2rem;
+    }
+    .proyectos-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móviles */
+    }
+}
+
+/* --- INICIA CÓDIGO RESPONSIVO --- */
+
+/* --- Estilos para Tablets (hasta 992px) --- */
+@media (max-width: 992px) {
+    .main-content {
+        margin-top: 70px; /* Ajuste por si la barra de navegación es más pequeña */
+    }
+
+    /* --- Sección de Introducción --- */
+    .projects-intro-section {
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .intro-content {
+        flex-direction: column-reverse; /* Las imágenes pasan arriba del texto */
+        text-align: center;
+        gap: 2.5rem;
+    }
+
+    .projects-intro-text p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .counters {
+        justify-content: center; /* Centramos los contadores */
+        gap: 2.5rem;
+    }
+}
+
+
+/* --- Estilos para Móviles (hasta 768px) --- */
+@media (max-width: 768px) {
+    .section-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+
+    /* --- Sección de Introducción --- */
+    .projects-intro-section {
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .projects-intro-text h1 {
+        font-size: 2.2rem;
+    }
+
+    .projects-intro-text p {
+        font-size: 0.95rem;
+    }
+
+    .counters {
+        flex-direction: column; /* Apilamos los contadores */
+        gap: 1.5rem;
+        align-items: center;
+    }
+    
+    .counter-item span {
+        font-size: 2.2rem;
+    }
+
+    /* Simplificamos el mosaico de imágenes a una sola columna */
+    .projects-intro-images {
+        grid-template-columns: 1fr;
+    }
+
+    .projects-intro-images img:nth-child(1) {
+        grid-row: auto; /* Reseteamos la regla que la expandía */
+    }
+    
+    /* --- Carrusel de Logos --- */
+    .logos-track figure {
+        width: 150px; /* Hacemos los logos un poco más pequeños para que quepan más */
+        padding: 0 20px;
+    }
+
+    /* --- Galerías de Proyectos --- */
+    .proyectos-grid, .realizados-grid {
+        /* Reducimos el mínimo para que quepa en pantallas muy estrechas */
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .projects-gallery-section {
+        padding-top: calc(4rem + 50px);
+        margin-top: -50px;
+    }
+
+    /* --- Tarjetas "Proyectos Realizados" --- */
+    .realizado-card .card-logo {
+        width: 60px; /* Reducimos el tamaño del logo superpuesto */
+        height: 60px;
+        border-width: 3px;
+    }
+
+    .card-content {
+        /* Ajustamos el padding superior para el nuevo tamaño del logo */
+        padding-top: calc(60px / 2 + 1rem);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
+    }
+    
+    .card-content h3 {
+        font-size: 1.2rem;
+    }
+}
+
+/* --- FIN CÓDIGO RESPONSIVO --- */

@@ -1,0 +1,259 @@
+/* =================================================================== */
+/* ============= ESTILOS AUTOCONTENIDOS PARA LOGIN =================== */
+/* =================================================================== */
+
+/* --- Importación de Fuente y Variables Globales --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+    --primary-color: #0a58a7;
+    --secondary-color: #fca311;
+    --dark-blue: #1c3d5e;
+    --dark-bg: #141414;
+    --text-light: #f0f0f0;
+    --text-muted: #6c757d;
+}
+
+/* --- Fondo Dinámico y Estilos Base --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: #0d1117; /* Un fondo casi negro para mayor contraste */
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+    overflow: hidden; /* Oculta partes de las formas que se salen */
+    position: relative;
+}
+
+/* --- Formas Abstractas de Fondo --- */
+body::before,
+body::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    border-radius: 9999px;
+    filter: blur(100px);
+}
+
+body::before { /* Forma Azul */
+    width: 400px;
+    height: 250px;
+    background-color: var(--primary-color);
+    top: -50px;
+    right: -100px;
+    transform: rotate(30deg);
+    animation: spin 20s linear infinite alternate;
+}
+
+body::after { /* Forma Naranja */
+    width: 350px;
+    height: 200px;
+    background-color: var(--secondary-color);
+    bottom: -50px;
+    left: -100px;
+    transform: rotate(-30deg);
+    animation: spin 25s linear infinite alternate-reverse;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg) scale(1); }
+    to { transform: rotate(90deg) scale(1.2); }
+}
+
+/* --- Contenedor y Tarjeta del Formulario --- */
+.login-wrapper {
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    z-index: 1;
+}
+
+.login-card {
+    background-color: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(20px);
+    padding: 2.5rem;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- Cabecera de la Tarjeta --- */
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.login-logo-container {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    overflow: hidden;
+}
+.login-logo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.login-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* --- Estilos del Formulario --- */
+.login-form > div { margin-bottom: 1.25rem; }
+.login-form label { display: block; font-weight: 500; margin-bottom: 0.5rem; font-size: 0.9rem; }
+
+.input-group {
+    position: relative;
+}
+.input-group i.fa-envelope, .input-group i.fa-lock {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+.login-form input[type="email"],
+.login-form input[type="password"] {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.75rem;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: #1e293b;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.login-form input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(252, 163, 17, 0.25);
+}
+
+#password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* --- Opciones y Enlaces --- */
+.form-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    margin-top: 1.5rem;
+}
+.form-links a {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.form-links a:hover {
+    color: var(--secondary-color);
+}
+.form-links .register-link {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* --- Botón de Envío con Gradiente --- */
+.submit-button {
+    background-image: linear-gradient(to right, var(--primary-color), #3b82f6);
+    color: #fff;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+}
+
+/* --- Enlace "Ir a la página de inicio" --- */
+.back-to-home {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #9ca3af;
+    text-decoration: none;
+    z-index: 10;
+    transition: color 0.3s ease;
+    background-color: rgba(30, 41, 59, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+}
+.back-to-home:hover {
+    color: #fff;
+}
+
+/* =================================================================== */
+/* ================== ESTILOS RESPONSIVOS PARA LOGIN ================= */
+/* =================================================================== */
+
+/* Usaremos un punto de quiebre más pequeño, ya que el diseño es muy robusto.
+   Estos cambios se aplicarán en pantallas de 480px o menos. */
+@media (max-width: 480px) {
+
+    /* Hacemos las formas de fondo un poco más pequeñas */
+    body::before {
+        width: 300px;
+        height: 200px;
+    }
+    body::after {
+        width: 250px;
+        height: 150px;
+    }
+
+    /* Reducimos el padding de la tarjeta para dar más espacio al contenido */
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .login-header h2 {
+        font-size: 1.5rem; /* Título un poco más pequeño */
+    }
+
+    /* --- Ajuste Clave para los enlaces inferiores --- */
+    .form-links {
+        flex-direction: column; /* Apilamos los enlaces verticalmente */
+        align-items: flex-start; /* Los alineamos a la izquierda */
+        gap: 1rem; /* Añadimos espacio entre ellos */
+    }
+
+    /* --- Ajuste para el botón de volver al inicio --- */
+    .back-to-home {
+        top: 1rem; /* Lo acercamos un poco más al borde */
+        left: 1rem;
+    }
+
+    /* Ocultamos el texto y dejamos solo el icono para un look más limpio */
+    .back-to-home span {
+        display: none;
+    }
+}

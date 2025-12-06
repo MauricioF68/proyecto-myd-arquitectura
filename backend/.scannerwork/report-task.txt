@@ -1,0 +1,6 @@
+projectKey=Mi-proyecto-laravel
+serverUrl=http://localhost:9000
+serverVersion=25.11.0.114957
+dashboardUrl=http://localhost:9000/dashboard?id=Mi-proyecto-laravel
+ceTaskId=93357ad4-794e-420c-b7c8-e5ac9b173fe5
+ceTaskUrl=http://localhost:9000/api/ce/task?id=93357ad4-794e-420c-b7c8-e5ac9b173fe5

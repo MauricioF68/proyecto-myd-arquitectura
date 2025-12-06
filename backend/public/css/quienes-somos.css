@@ -1,0 +1,319 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, #0a58a7 0%, #1c3d5e 100%);
+    color: #e2e8f0;
+    line-height: 1.6;
+}
+.header-nav {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+.header-nav .left-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.header-nav .logo {
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #fff;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+.header-nav .menu-items {
+    display: flex;
+    gap: 1.5rem;
+}
+.header-nav .menu-items a {
+    text-decoration: none;
+    color: #e2e8f0;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+.header-nav .menu-items a:hover {
+    color: #fff;
+}
+.header-nav .menu-items a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: #fff;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+.header-nav .menu-items a:hover::after {
+    width: 100%;
+    left: 0;
+}
+.header-nav .right-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.header-nav .right-section a {
+    text-decoration: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.header-nav .right-section a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
+}
+.cotizar-btn {
+    background-color: #fca311;
+    color: #1c3d5e;
+    border: none !important;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 50px !important;
+    transition: transform 0.3s ease !important;
+}
+.cotizar-btn:hover {
+    transform: translateY(-3px);
+    background-color: #e6910a;
+}
+.quienes-somos-section {
+    min-height: 100vh;
+    padding: 10rem 2rem 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 1200px;
+    margin: auto;
+}
+.quienes-somos-content {
+    display: flex;
+    gap: 4rem;
+    align-items: center;
+    margin-top: -16rem;
+}
+.carousel-container-wrapper {
+    display: flex;
+    gap: 2rem;
+    flex: 1;
+}
+.carousel-container {
+    width: 230px;
+    height: 550px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    -webkit-mask-image: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
+    mask-image: linear-gradient(to top, transparent 5%, black 20%, black 80%, transparent 95%);
+    mask-composite: subtract;
+    -webkit-mask-composite: source-out;
+}
+.carousel-container img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+.text-content {
+    flex: 1;
+}
+.text-content h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+.text-content p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+/* Estilos para la nueva maquetación de la derecha */
+.right-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+.mision-vision-section {
+    padding: 0;
+    margin: 0;
+}
+.tarjeta-container {
+    display: flex;
+    gap: 2rem;
+    
+}
+.tarjeta {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 300px;
+    text-align: left;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.tarjeta h3 {
+    color: #fca311;
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+.tarjeta p {
+    color: #e2e8f0;
+    font-size: 1rem;
+}
+.tarjeta:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+    margin-top: -10rem;
+}
+.footer a {
+    color: #fca311;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.footer a:hover {
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .quienes-somos-content {
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+    .carousel-container-wrapper {
+        flex-direction: column;
+    }
+    .carousel-container {
+        width: 100%;
+        height: 300px;
+    }
+    .carousel-container img {
+        height: 300px;
+    }
+    .text-content h1 {
+        font-size: 2rem;
+    }
+    .text-content p {
+        font-size: 1rem;
+    }
+    .tarjeta-container {
+        justify-content: center;
+    }
+}
+
+/* --- INICIA CÓDIGO RESPONSIVO --- */
+
+/* --- Estilos para Tablets (hasta 992px) --- */
+@media (max-width: 992px) {
+    .quienes-somos-section {
+        min-height: auto; /* Dejamos que el contenido defina la altura */
+        padding: 8rem 1.5rem 4rem; /* Ajustamos el padding */
+    }
+
+    .quienes-somos-content {
+        flex-direction: column-reverse; /* Ponemos el texto arriba de las imágenes */
+        margin-top: 0; /* Reseteamos el margen negativo */
+        text-align: center;
+        gap: 3rem;
+    }
+
+    .right-content-wrapper {
+        align-items: center; /* Centramos las tarjetas de Misión/Visión */
+    }
+
+    .text-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .text-content p {
+        font-size: 1.1rem;
+    }
+
+    .tarjeta-container {
+        justify-content: center; /* Centramos las tarjetas */
+    }
+}
+
+
+/* --- Estilos para Móviles (hasta 768px) --- */
+@media (max-width: 768px) {
+    .quienes-somos-section {
+        padding: 7rem 1rem 3rem; /* Menos padding en móviles */
+    }
+
+    /* --- Simplificación de Carruseles --- */
+    .carousel-container-wrapper {
+        flex-direction: row; /* Los mantenemos en fila */
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .carousel-container {
+        width: 150px; /* Reducimos el ancho de cada columna de imágenes */
+        height: 400px; /* Reducimos la altura */
+    }
+
+    /* Ocultamos el segundo carrusel para simplificar la vista y ahorrar espacio */
+    #carousel2 {
+        display: none;
+    }
+
+    /* Hacemos que el primer carrusel sea más prominente */
+    #carousel1 {
+        width: 100%;
+        max-width: 300px; /* Le damos un ancho máximo */
+    }
+
+    /* --- Misión y Visión --- */
+    .tarjeta-container {
+        flex-direction: column; /* Apilamos las tarjetas una sobre otra */
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .tarjeta {
+        width: 100%; /* Hacemos que ocupen todo el ancho disponible */
+        max-width: 400px; /* Pero con un máximo para no estirarse demasiado */
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .text-content h1 {
+        font-size: 2rem;
+    }
+
+    .text-content p {
+        font-size: 1rem;
+    }
+
+    /* --- Footer --- */
+    .footer {
+        padding: 1.5rem 1rem;
+        margin-top: 0;
+        font-size: 0.8rem;
+    }
+}
+
+/* --- FIN CÓDIGO RESPONSIVO --- */

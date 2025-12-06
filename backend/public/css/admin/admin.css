@@ -1,0 +1,228 @@
+/* =================================================================== */
+/* ============== ESTILOS CENTRALES PARA EL PANEL ADMIN ============== */
+/* =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #0a58a7;
+    --secondary-color: #fca311;
+    --dark-blue: #1c3d5e;
+    --dark-bg: #141414;
+    --card-bg: #2a2f3b;
+    --text-light: #f0f0f0;
+    --text-muted: #8a92a6;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --sidebar-width: 260px; /* Ancho de la barra lateral */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+}
+
+.admin-container {
+    display: flex;
+}
+
+
+/* --- NUEVO: Contenedor Principal (derecha) --- */
+.main-content-wrapper {
+    flex-grow: 1;
+    padding: 1.5rem;
+    transition: margin-left 0.3s ease;
+    min-width: 0; /* Transición suave */
+}
+
+/* --- Barra de Navegación Superior --- */
+.top-nav {
+    background-color: var(--card-bg);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.top-nav .left-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.logo-section img { height: 35px; }
+.logo-section span {
+    font-weight: 700;
+    color: #fff;
+    font-size: 1.2rem;
+}
+
+/* --- Perfil de Usuario y Menú Desplegable (Sin cambios) --- */
+.user-profile {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+.user-profile img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    border: 2px solid var(--primary-color);
+}
+.user-profile .user-name { font-weight: 500; color: #fff; }
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background-color: #3c4251;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 180px;
+    z-index: 10;
+    display: none;
+    overflow: hidden;
+}
+.dropdown-menu.show { display: block; }
+
+.dropdown-menu a, .dropdown-menu button {
+    display: block; width: 100%; padding: 0.75rem 1rem; color: var(--text-light);
+    text-decoration: none; background: none; border: none; text-align: left; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 0.9rem;
+}
+.dropdown-menu a:hover, .dropdown-menu button:hover { background-color: var(--primary-color); color: #fff; }
+
+
+/* ============================================================== */
+/* ============= NUEVOS ESTILOS PARA SIDEBAR Y RESPONSIVIDAD ============= */
+/* ============================================================== */
+
+/* --- Barra Lateral (Sidebar) --- */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-right: 1px solid var(--border-color);
+    box-sizing: border-box;
+    z-index: 1001; /* Por encima del overlay */
+    transform: translateX(0); /* Visible por defecto en escritorio */
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.sidebar-header img { height: 35px; }
+.sidebar-header span { font-weight: 700; color: #fff; font-size: 1.2rem; }
+
+/* Menú de navegación dentro de la sidebar */
+.sidebar .nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.sidebar .nav-menu a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 1rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+.sidebar .nav-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+.sidebar .nav-menu a.active {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+.sidebar .nav-menu i {
+    width: 20px; /* Alinea los iconos */
+    text-align: center;
+}
+
+/* --- Botón Hamburguesa --- */
+.menu-toggle {
+    display: none; /* Oculto por defecto en escritorio */
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* --- Overlay --- */
+.overlay {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+/* --- Lógica para Escritorio --- */
+/* Cuando la sidebar está visible, empuja el contenido principal */
+.admin-container {
+    padding-left: var(--sidebar-width);
+}
+.sidebar ~ .main-content-wrapper {
+    width: calc(100% - var(--sidebar-width));
+}
+
+
+/* ============================================================== */
+/* ================== ESTILOS RESPONSIVOS ================== */
+/* ============================================================== */
+
+@media (max-width: 992px) {
+    /* --- Ocultamos la sidebar y preparamos para el modo móvil --- */
+    .sidebar {
+        transform: translateX(-100%); /* Oculta la sidebar fuera de la pantalla */
+    }
+    .sidebar.is-active {
+        transform: translateX(0); /* Muestra la sidebar cuando tiene la clase 'is-active' */
+    }
+
+    /* Mostramos el botón de hamburguesa y el overlay cuando el menú está activo */
+    .menu-toggle { display: block; }
+    .overlay.is-active { display: block; }
+
+    /* El contenido principal ya no es empujado */
+    .admin-container { padding-left: 0; }
+    .sidebar ~ .main-content-wrapper { width: 100%; }
+    
+    /* Ocultamos elementos innecesarios en la barra superior para más espacio */
+    .top-nav .logo-section { display: none; }
+    .user-profile .user-name { display: none; }
+    .user-profile img { margin-right: 0; }
+}

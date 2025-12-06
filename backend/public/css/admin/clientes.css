@@ -1,0 +1,371 @@
+/* =================================================================== */
+/* ============== ESTILOS PARA LA GESTIÓN DE CLIENTES ================ */
+/* =================================================================== */
+
+/* --- Contenedor Principal --- */
+.content-section {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* --- Tabla de Datos --- */
+.content-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.content-table th, .content-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    white-space: nowrap;
+}
+.content-table thead {
+    border-bottom: 2px solid var(--border-color);
+}
+.content-table th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.content-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+.content-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+.content-table td {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-light);
+}
+.content-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- Botones de Acción --- */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color 0.3s ease, transform 0.2s ease;
+    padding: 0.25rem;
+}
+.action-btn.view:hover { 
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+/* --- Paginación --- */
+/* =================================================================== */
+/* ============= ESTILOS PARA LA PAGINACIÓN PERSONALIZADA ============= */
+/* =================================================================== */
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.pagination-summary {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.pagination {
+    list-style: none;
+    display: flex;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+}
+
+.pagination .page-item a,
+.pagination .page-item span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s, color 0.2s;
+    line-height: 1;
+}
+
+/* Flechas */
+.pagination .page-item i {
+    font-size: 0.8rem;
+}
+
+/* Hover */
+.pagination .page-item a:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* Página Activa */
+.pagination .page-item.active span {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* Botones Desactivados y "..." */
+.pagination .page-item.disabled span {
+    background-color: transparent;
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .pagination-summary {
+        margin-bottom: 1rem;
+    }
+}
+
+/* --- Estilos para la Ventana Modal (Reutilizados) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+.modal-content {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+.modal-overlay.is-visible .modal-content {
+    transform: scale(1);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #fff;
+}
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+.modal-close-btn:hover {
+    color: #fff;
+    transform: rotate(90deg);
+}
+.modal-body .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+.modal-body .info-item {
+    font-size: 0.9rem;
+}
+.info-item{
+    overflow-wrap: anywhere;
+}
+.modal-body .info-item strong {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+.modal-body .info-item span, .modal-body .info-item a {
+    color: var(--text-light);
+    font-size: 1rem;
+    text-decoration: none;
+}
+.modal-body .info-item .status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+.modal-body .info-item .status:hover {
+    filter: brightness(1.2); /* <-- Añade un efecto hover */
+}
+.modal-body .info-item .status-verified {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #a7f3d0;
+}
+.modal-body .info-item .status-not-verified {
+    background-color: rgba(252, 163, 17, 0.2);
+    color: var(--secondary-color);
+}
+
+/* =================================================================== */
+/* ================ ESTILOS RESPONSIVOS PARA CLIENTES ================ */
+/* =================================================================== */
+
+@media (max-width: 992px) {
+    /* En tablets, la tabla aún puede ser un poco ancha.
+       Ocultamos la fecha para dar más espacio al nombre y correo. */
+    .content-table th:nth-child(3),
+    .content-table td:nth-child(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.6rem;
+    }
+
+    /* --- LA TRANSFORMACIÓN DE LA TABLA A TARJETAS --- */
+    /* Mostramos de nuevo la columna de fecha, ya que ahora cabe verticalmente */
+    .content-table th:nth-child(3),
+    .content-table td:nth-child(3) {
+        display: block;
+    }
+    
+    .content-table th, .content-table td {
+        white-space: normal; /* Permitimos que todo el texto se rompa en varias líneas */
+    }
+
+    .content-table thead {
+        display: none;
+    }
+
+    .content-table tbody,
+    .content-table tr,
+    .content-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .content-table tr {
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+    
+    .content-table tr:last-child {
+        margin-bottom: 0;
+    }
+    
+    .content-table td {
+        padding: 0.6rem 0;
+        border: none;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .content-table tr td:last-child {
+        border-bottom: none;
+        padding-top: 1rem;
+    }
+
+    .content-table td::before {
+        display: block;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Asignamos las etiquetas a cada columna */
+    .content-table td:nth-of-type(1)::before { content: "Nombre:"; }
+    .content-table td:nth-of-type(2)::before { content: "Correo:"; }
+    .content-table td:nth-of-type(3)::before { content: "Fecha de Registro:"; }
+    .content-table td:nth-of-type(4)::before { content: "Acciones:"; }
+    
+    .content-table td[colspan="4"] { text-align: center; }
+    .content-table td[colspan="4"]::before { display: none; }
+
+    /* --- AJUSTES PARA LA VENTANA MODAL --- */
+    .modal-content {
+        padding: 1.5rem;
+        max-width: 95%;
+    }
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .modal-body .info-grid {
+        grid-template-columns: 1fr; /* Apilamos la información en una sola columna */
+        gap: 1rem;
+    }
+    
+   
+}
+
+/* =================================================================== */
+/* ============ CORRECCIÓN GLOBAL PARA DESBORDAMIENTO DE TEXTO =========== */
+/* =================================================================== */
+
+/* Esta regla se aplica a todas las "tarjetas" y contenedores del panel de admin */
+.content-section,
+.stat-card,
+.chart-container {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    
+}
+
