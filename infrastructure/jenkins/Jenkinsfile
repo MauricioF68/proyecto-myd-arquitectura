@@ -1,5 +1,5 @@
 // -----------------------------------------------------
-// JENKINSFILE PROFESIONAL v2.0 (ARQUITECTO DE SISTEMAS) - CORREGIDO
+// JENKINSFILE PROFESIONAL v2.0 (ARQUITECTO DE SISTEMAS) - CORREGIDO FINAL
 // -----------------------------------------------------
 
 pipeline {
@@ -66,10 +66,11 @@ pipeline {
                             withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
                                 withSonarQubeEnv('SonarQube Server') {
                                     sh """
-                                        echo '--- Ejecutando Análisis Real de SonarQube ---'
-                                        # Nota: El archivo sonar-project.properties en /usr/src (backend) manejará la mayoría de las configuraciones.
+                                        echo '--- Ejecutando Análisis Real de SonarQube (Forzando Sources) ---'
                                         sonar-scanner \\
                                             -Dsonar.projectBaseDir=/usr/src \\
+                                            -Dsonar.sources=app,config,routes,database \\
+                                            -Dsonar.exclusions=vendor/**,storage/**,bootstrap/cache/**,public/**,node_modules/**,tests/** \\
                                             -Dsonar.login=${SONAR_TOKEN} \\
                                             -Dsonar.projectKey=MYD-LARAVEL-PROJECT \\
                                             -Dsonar.projectName='MyD Cotizaciones Laravel Monolito' \\
@@ -78,7 +79,7 @@ pipeline {
                                 }
                             }
                             
-                            // 🚀 CORRECCIÓN CLAVE: Mover el waitForQualityGate DENTRO del agente Docker.
+                            // 🚀 CORRECCIÓN CLAVE: El Quality Gate DEBE ejecutarse aquí.
                             timeout(time: 15, unit: 'MINUTES') {
                                 echo 'Esperando Quality Gate dentro del contenedor con acceso a la red CICD...'
                                 waitForQualityGate abortPipeline: true
