@@ -4,24 +4,22 @@ pipeline {
     environment {
         TF_DIR = 'infrastructure/terraform'
         BACKEND_DIR = 'backend'
-        // Nombre de la red de docker que viste en el paso 1
+        // Nombre de la red de docker que viste en tu docker network ls
         DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net' 
     }
 
     stages {
-        
 
         // ETAPA 2: CALIDAD Y SEGURIDAD
         stage('Quality & Security') {
             parallel {
+
+                // ---- ANÁLISIS SONARQUBE (PHP) ----
                 stage('SonarQube Analysis (PHP)') {
                     steps {
                         script {
                             echo '--- Ejecutando Análisis Real de SonarQube ---'
-                            // Usamos el plugin para obtener las credenciales (Token) automáticamente
                             withSonarQubeEnv('SonarQube Server') {
-                                // Lanzamos un contenedor temporal con el escáner
-                                // Le pasamos el código (-v) y lo conectamos a la red (--network)
                                 sh """
                                 docker run --rm \
                                     --network ${DOCKER_NETWORK} \
@@ -35,13 +33,22 @@ pipeline {
                         }
                     }
                 }
-                
+
+                // ---- ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
                 stage('Infrastructure Security (Checkov)') {
                     steps {
                         echo '--- Ejecutando Auditoría de Terraform ---'
                         dir("${TF_DIR}") {
-                            // Usamos tu archivo de configuración .checkov.yaml montando el volumen raíz
-                            sh 'docker run --rm -v $(pwd)/../../:/tf bridgecrew/checkov:3 -d /tf/infrastructure/terraform  --soft-fail'
+
+                            // ✔️ Eliminado el --config-file /tf/.checkov.yaml que causaba error
+                            // ✔️ Se mantiene --soft-fail para que no falle el pipeline
+                            sh '''
+                            docker run --rm \
+                                -v $(pwd)/../../:/tf \
+                                bridgecrew/checkov:3 \
+                                -d /tf/infrastructure/terraform \
+                                --soft-fail
+                            '''
                         }
                     }
                 }
@@ -60,7 +67,7 @@ pipeline {
                 }
             }
         }
-        
+
         // ETAPA 4: DESPLIEGUE (Solo con aprobación)
         stage('Deploy to AWS') {
             input {
@@ -70,6 +77,7 @@ pipeline {
             steps {
                 script {
                     echo '--- Desplegando... (Simulado) ---'
+                    // ❗ Sigue deshabilitado para evitar costos en AWS
                     // sh 'terraform apply tfplan'
                 }
             }
