@@ -16,7 +16,7 @@ pipeline {
         
         // ID de credenciales de Jenkins (DEBES CREARLAS EN JENKINS)
         AWS_CREDENTIALS_ID = 'aws-credentials-iam-role' 
-        SONARQUBE_TOKEN_ID = 'sonarqube-token' 
+        SONARQUBE_TOKEN_ID = 'sonar-token' 
         
         // Imagen del escáner de PHP (Nombre local que construiremos)
         SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0' 
