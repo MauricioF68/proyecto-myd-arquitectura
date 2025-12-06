@@ -40,17 +40,18 @@ pipeline {
                     steps {
                         script {
                             echo '--- Ejecutando Análisis Real de SonarQube con Scanner PHP 8.1 ---'
+                            
+                            // Aseguramos permisos de lectura/escritura en el host de Jenkins
                             sh "chmod -R 775 ${BACKEND_DIR}" 
                             
                             withSonarQubeEnv('SonarQube Server') {
                                 sh """
-                                # CORRECCIÓN CONECTIVIDAD: Forzamos el host a 'sonarqube' (nombre del servicio)
-                                docker run --rm \
-                                    --network ${DOCKER_NETWORK} \
-                                    -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src \
-                                    ${SONAR_SCANNER_IMAGE} \
-                                    -Dsonar.projectBaseDir=/usr/src \
-                                    -Dsonar.host.url=${SONAR_HOST_URL}
+                                # Corregido: La variable de entorno de Jenkins \$WORKSPACE se resuelve automáticamente.
+                                docker run --rm \\
+                                    --network ${DOCKER_NETWORK} \\
+                                    -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src \\
+                                    ${SONAR_SCANNER_IMAGE} \\
+                                    -Dsonar.projectBaseDir=/usr/src 
                                 """
                             }
                         }
