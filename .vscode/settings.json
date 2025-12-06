@@ -1,3 +1,4 @@
 {
-    "ansible.python.interpreterPath": "c:\\Users\\ISTE11-CIII\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"
+    "ansible.python.interpreterPath": "c:\\Users\\ISTE11-CIII\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "liveServer.settings.port": 5508
 }

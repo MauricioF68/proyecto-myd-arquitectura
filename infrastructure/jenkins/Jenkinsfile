@@ -53,12 +53,12 @@ pipeline {
                 // ---- 2.1 ANÁLISIS SONARQUBE (PHP) ----
                 stage('SonarQube Analysis (PHP)') {
                     agent {
-                        // Usamos la imagen que acabamos de construir como Agente Docker
-                        docker { 
-                            image "${SONAR_SCANNER_IMAGE}"
-                            args "-v ${WORKSPACE}/${BACKEND_DIR}:/usr/src --network ${DOCKER_NETWORK}"
+                            docker { 
+                                image "${SONAR_SCANNER_IMAGE}"
+                                // AÑADIR: --entrypoint='' para anular el ENTRYPOINT del Dockerfile
+                                args "--entrypoint='' -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src --network ${DOCKER_NETWORK}"
+                            }
                         }
-                    }
                     steps {
                         // Inyectamos las credenciales de SonarQube
                         withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
@@ -87,7 +87,8 @@ pipeline {
                         // Usamos la imagen oficial de Checkov para IaC Security
                         docker { 
                             image "${CHECKOV_IMAGE}"
-                            args "-v ${WORKSPACE}:/tf_root"
+                            // AÑADIR: --entrypoint='' para anular el ENTRYPOINT de la imagen de Checkov
+                            args "--entrypoint='' -v ${WORKSPACE}:/tf_root"
                         }
                     }
                     steps {
