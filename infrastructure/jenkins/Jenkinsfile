@@ -34,7 +34,7 @@ pipeline {
                                     -Dsonar.host.url=http://sonarqube:9000 \
                                     -Dsonar.login=\$SONAR_AUTH_TOKEN \
                                     -Dsonar.projectBaseDir=/usr/src 
-                                    // CORRECCIÓN: Agregamos -Dsonar.projectBaseDir para que detecte el código en /usr/src
+                                    #CORRECCIÓN: Agregamos -Dsonar.projectBaseDir para que detecte el código en /usr/src
                                 """
                             }
                         }

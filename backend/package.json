@@ -3,8 +3,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
-        "sonar": "npx sonar-scanner -Dsonar.projectKey=Mi-proyecto-laravel -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.exclusions=vendor/**,public/**,storage/**,node_modules/**"
+        "build": "vite build"
+        
 
     },
     "devDependencies": {
