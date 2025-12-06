@@ -2,10 +2,15 @@ pipeline {
     agent any
 
     environment {
+        // Rutas de directorio
         TF_DIR = 'infrastructure/terraform'
         BACKEND_DIR = 'backend'
-        // Nombre de la red de docker que viste en tu docker network ls
-        DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net' 
+        
+        // Configuración de Docker/Redes
+        DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net'
+        
+        // ID de credenciales de Jenkins (creado en el paso anterior)
+        AWS_CREDENTIALS_ID = 'aws-credentials' 
     }
 
     stages {
@@ -27,7 +32,9 @@ pipeline {
                                     sonarsource/sonar-scanner-cli \
                                     -Dsonar.projectKey=myd-controles-backend \
                                     -Dsonar.host.url=http://sonarqube:9000 \
-                                    -Dsonar.login=\$SONAR_AUTH_TOKEN
+                                    -Dsonar.login=\$SONAR_AUTH_TOKEN \
+                                    -Dsonar.projectBaseDir=/usr/src 
+                                    // CORRECCIÓN: Agregamos -Dsonar.projectBaseDir para que detecte el código en /usr/src
                                 """
                             }
                         }
@@ -39,9 +46,8 @@ pipeline {
                     steps {
                         echo '--- Ejecutando Auditoría de Terraform ---'
                         dir("${TF_DIR}") {
-
-                            // ✔️ Eliminado el --config-file /tf/.checkov.yaml que causaba error
-                            // ✔️ Se mantiene --soft-fail para que no falle el pipeline
+                            // CORRECCIÓN: Se mantiene el volumen montado a la raíz del workspace 
+                            // y se escanea el path interno dentro del contenedor: /tf/infrastructure/terraform
                             sh '''
                             docker run --rm \
                                 -v $(pwd)/../../:/tf \
@@ -60,9 +66,16 @@ pipeline {
             steps {
                 script {
                     echo '--- Planificando Infraestructura ---'
-                    dir("${TF_DIR}") {
-                        sh 'terraform init'
-                        sh 'terraform plan -out=tfplan'
+                    
+                    // CORRECCIÓN CRÍTICA: Inyectamos las credenciales de AWS
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    ]) {
+                        dir("${TF_DIR}") {
+                            sh 'terraform init'
+                            // Terraform ahora usará las variables de entorno inyectadas
+                            sh 'terraform plan -out=tfplan' 
+                        }
                     }
                 }
             }
@@ -77,8 +90,16 @@ pipeline {
             steps {
                 script {
                     echo '--- Desplegando... (Simulado) ---'
-                    // ❗ Sigue deshabilitado para evitar costos en AWS
-                    // sh 'terraform apply tfplan'
+                    
+                    // Aseguramos que el 'apply' también use las credenciales
+                    withCredentials([
+                        [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
+                    ]) {
+                        dir("${TF_DIR}") {
+                             // sh 'terraform apply tfplan' // Deshabilitado para evitar costos
+                             echo 'Despliegue de Terraform Apply omitido por seguridad.'
+                        }
+                    }
                 }
             }
         }
