@@ -1,84 +1,124 @@
+// -----------------------------------------------------
+// JENKINSFILE PROFESIONAL v2.0 (ARQUITECTO DE SISTEMAS)
+// -----------------------------------------------------
+
 pipeline {
-    agent any
+    // Usamos 'agent any' para compatibilidad con la instalación por defecto.
+    agent any 
 
     environment {
         // Rutas de directorio
         TF_DIR = 'infrastructure/terraform'
         BACKEND_DIR = 'backend'
         
-        // Configuración de Docker/Redes
+        // Configuración de Docker/Redes (Aseguramos la red compartida para las herramientas)
         DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net'
         
-        // ID de credenciales de Jenkins
-        AWS_CREDENTIALS_ID = 'aws-credentials'
+        // ID de credenciales de Jenkins (DEBES CREARLAS EN JENKINS)
+        AWS_CREDENTIALS_ID = 'aws-credentials-iam-role' 
+        SONARQUBE_TOKEN_ID = 'sonarqube-token' 
         
         // Imagen del escáner de PHP (Nombre local que construiremos)
         SONAR_SCANNER_IMAGE = 'myd-sonar-scanner-php:1.0' 
+        
+        // Versión de Checkov y Terraform para Docker
+        CHECKOV_IMAGE = 'bridgecrew/checkov:3'
+        TERRAFORM_IMAGE = 'hashicorp/terraform:1.6.0'
+    }
+    
+    // Configuración para limpiar agentes al finalizar el pipeline, incluso en fallo
+    post {
+        always {
+            echo 'Limpiando contenedores de observabilidad...'
+            sh 'docker compose -f docker-compose-cicd.yml down || true'
+        }
     }
 
     stages {
 
-        // ETAPA 1: CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO
+        // ETAPA 1: CONSTRUCCIÓN DEL ESCÁNER PERSONALIZADO (CORREGIDO)
         stage('Build Sonar Scanner Image') {
             steps {
                 script {
                     echo "--- Construyendo Imagen Docker de Sonar Scanner PHP 8.1 ---"
-                    // Nota: El contexto de build es la raíz (.), el Dockerfile está en infrastructure/docker/
                     sh "docker build -f infrastructure/docker/Dockerfile.sonar-scanner -t ${SONAR_SCANNER_IMAGE} ."
                 }
             }
         }
 
-        // ETAPA 2: CALIDAD Y SEGURIDAD
-        stage('Quality & Security') {
+        // ETAPA 2: CALIDAD Y SEGURIDAD (DEVSECOPS GATE)
+        stage('Quality & Security Gate') {
             parallel {
 
-                // ---- ANÁLISIS SONARQUBE (PHP) ----
+                // ---- 2.1 ANÁLISIS SONARQUBE (PHP) ----
                 stage('SonarQube Analysis (PHP)') {
+                    agent {
+                        // Usamos la imagen que acabamos de construir como Agente Docker
+                        docker { 
+                            image "${SONAR_SCANNER_IMAGE}"
+                            args "-v ${WORKSPACE}/${BACKEND_DIR}:/usr/src --network ${DOCKER_NETWORK}"
+                        }
+                    }
                     steps {
-                        script {
-                            echo '--- Ejecutando Análisis Real de SonarQube con Scanner PHP 8.1 ---'
-                            
-                            // Aseguramos permisos de lectura/escritura en el host de Jenkins
-                            sh "chmod -R 775 ${BACKEND_DIR}" 
-                            
+                        // Inyectamos las credenciales de SonarQube
+                        withCredentials([string(credentialsId: SONARQUBE_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
                             withSonarQubeEnv('SonarQube Server') {
-                                // Usamos comillas simples para evitar la interpolación de Groovy, excepto en las variables ${}
-                                // La URL del host se inyecta correctamente como -Dsonar.host.url=http://sonarqube:9000
-                                sh "docker run --rm --network ${DOCKER_NETWORK} -v ${WORKSPACE}/${BACKEND_DIR}:/usr/src ${SONAR_SCANNER_IMAGE} -Dsonar.projectBaseDir=/usr/src"
+                                sh """
+                                    echo '--- Ejecutando Análisis Real de SonarQube ---'
+                                    sonar-scanner \
+                                        -Dsonar.projectBaseDir=/usr/src \
+                                        -Dsonar.login=${SONAR_TOKEN} \
+                                        -Dsonar.projectKey=MYD-LARAVEL-PROJECT \
+                                        -Dsonar.projectName='MyD Cotizaciones Laravel Monolito' \
+                                        -Dsonar.sourceEncoding=UTF-8
+                                """
                             }
+                        }
+                        // Espera el Quality Gate (si el Quality Gate de SonarQube falla, el pipeline se detiene)
+                        timeout(time: 15, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
                         }
                     }
                 }
 
-                // ---- ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
+                // ---- 2.2 ANALISIS DE INFRAESTRUCTURA (CHECKOV) ----
                 stage('Infrastructure Security (Checkov)') {
+                    agent {
+                        // Usamos la imagen oficial de Checkov para IaC Security
+                        docker { 
+                            image "${CHECKOV_IMAGE}"
+                            args "-v ${WORKSPACE}:/tf_root"
+                        }
+                    }
                     steps {
                         script {
-                            echo '--- Ejecutando Auditoría de Terraform ---'
-                            dir("${TF_DIR}") {
-                                // Solución CRÍTICA: Usamos comillas simples (') para aislar el comando shell 
-                                // y forzar el uso de la sintaxis shell $(pwd) sin que Groovy interfiera.
-                                sh 'docker run --rm -v $(pwd)/../../:/tf bridgecrew/checkov:3 -d /tf/infrastructure/terraform --soft-fail'
-                            }
+                            echo '--- Ejecutando Auditoría de Terraform con Checkov ---'
+                            // --soft-fail: No falla el pipeline si encuentra errores de baja prioridad
+                            sh "checkov -d /tf_root/${TF_DIR} --framework terraform --soft-fail"
                         }
                     }
                 }
             }
         }
-
-        // ETAPA 3: PLANIFICACIÓN DE INFRAESTRUCTURA
+        
+        // ETAPA 3: PLANIFICACIÓN DE INFRAESTRUCTURA (IaC)
         stage('Terraform Plan') {
+            agent {
+                // Usamos la imagen oficial de Terraform para aislar la herramienta
+                docker { 
+                    image "${TERRAFORM_IMAGE}"
+                }
+            }
             steps {
                 script {
-                    echo '--- Planificando Infraestructura ---'
+                    echo '--- Planificando Infraestructura Free Tier ---'
                     
-                    // Inyección de credenciales de AWS
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
                         dir("${TF_DIR}") {
-                            sh 'terraform init'
+                            // Inicialización con S3 Backend (DEBES CREAR EL BUCKET MANUALMENTE)
+                            sh 'terraform init -backend-config="bucket=myd-tf-state-bucket-unique" -backend-config="key=myd/terraform.tfstate" -input=false' 
                             sh 'terraform plan -out=tfplan' 
                         }
                     }
@@ -86,21 +126,38 @@ pipeline {
             }
         }
 
-        // ETAPA 4: DESPLIEGUE (Solo con aprobación)
+        // ETAPA 4: DESPLIEGUE A OBS. (PROMETHEUS/GRAFANA/LOKI)
+        stage('Deploy Observability') {
+            steps {
+                script {
+                    echo '--- Desplegando Contenedores de Observabilidad ---'
+                    // Levanta Prometheus, Grafana y Loki.
+                    sh 'docker compose -f docker-compose-cicd.yml up -d'
+                    echo 'Observabilidad en ejecución. Accede a Grafana en http://localhost:3000'
+                }
+            }
+        }
+        
+        // ETAPA 5: DESPLIEGUE A AWS (Solo con aprobación humana)
         stage('Deploy to AWS') {
             input {
-                message "¿Desplegar a Producción?"
-                ok "Sí, dale"
+                message "¿Aplicar el plan de Terraform a la infraestructura Free Tier? (Revisa el Plan antes)"
+                ok "Sí, aplicar"
+            }
+            agent {
+                docker { 
+                    image "${TERRAFORM_IMAGE}"
+                }
             }
             steps {
                 script {
-                    echo '--- Desplegando... (Simulado) ---'
+                    echo '--- Aplicando plan de Infraestructura ---'
                     
                     withCredentials([
                         [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']
                     ]) {
                         dir("${TF_DIR}") {
-                             echo 'Despliegue de Terraform Apply omitido por seguridad.'
+                            sh 'terraform apply -auto-approve tfplan'
                         }
                     }
                 }

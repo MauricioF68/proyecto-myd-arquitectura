@@ -4,19 +4,18 @@ FROM php:8.1-cli
 
 # 2. Instalamos las dependencias necesarias
 RUN apt-get update && \
-    # Instalamos Java 17 (JRE - versión headless, sin cabeza, es más ligera y suficiente)
-    apt-get install -y openjdk-17-jre-headless \
-    # Instalamos el Sonar Scanner
+    # INSTALACIÓN CORREGIDA: Usamos Java 21 headless, soportado por Debian Trixie (php:8.1-cli)
+    apt-get install -y openjdk-21-jre-headless \
+    # Instalamos el Sonar Scanner y utilidades
     curl \
     unzip \
-    # Instalamos utilidades necesarias para PHP/Laravel
     git \
     libxml2-dev \
     libonig-dev \
     # Limpiamos los caches de APT
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Instalamos el Sonar Scanner CLI (Versión 4.8.0, compatible con Java 17)
+# 3. Instalamos el Sonar Scanner CLI (Versión 4.8.0, compatible con Java 21)
 # Verificamos la URL oficial para la versión más reciente compatible.
 ARG SONAR_SCANNER_VERSION=4.8.0.2856
 RUN curl -LO https://binaries.sonarsource.com/Distribution/sonar-scanner/sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip && \
@@ -27,6 +26,5 @@ RUN curl -LO https://binaries.sonarsource.com/Distribution/sonar-scanner/sonar-s
 ENV SONAR_RUNNER_HOME=/opt/sonar-scanner-${SONAR_SCANNER_VERSION}
 ENV PATH=$PATH:/opt/sonar-scanner-${SONAR_SCANNER_VERSION}/bin
 
-# 5. Punto de entrada (para que se ejecute el scanner cuando se use la imagen)
-# No es estrictamente necesario, pero es una buena práctica para imágenes de utilidades
+# 5. Punto de entrada
 ENTRYPOINT ["sonar-scanner"]
