@@ -1,34 +1,28 @@
 # -----------------------------------------------------
-# DOCKERFILE SONAR SCANNER PHP 8.1 (CORREGIDO)
-# Solución a: Falta de openjdk-17, falta de openjdk-21 en ruta, URL de binarios expirada.
+# DOCKERFILE SONAR SCANNER PHP 8.1 (SOLUCIÓN MULTI-STAGE)
 # -----------------------------------------------------
 
-# 1. Imagen Base (PHP 8.1 - CLI)
+# 1. Etapa: Obtener el Sonar Scanner CLI (Usando la imagen oficial)
+FROM sonarsource/sonar-scanner-cli:5.0 AS scanner
+
+# 2. Etapa: Imagen de ejecución (la base de PHP)
 FROM php:8.1-cli
 
-# 2. Instalamos las dependencias necesarias (Java 21)
+# 3. Instalamos las dependencias necesarias
+# openjdk-21-jre-headless es NECESARIO para que Sonar Scanner funcione
 RUN apt-get update && \
-    # CORRECCIÓN #1 y #2: Instalamos Java 21 headless (funciona en Debian Trixie/12)
     apt-get install -y openjdk-21-jre-headless \
-    # Instalamos utilidades necesarias
-    curl \
-    unzip \
     git \
     libxml2-dev \
     libonig-dev \
-    # Limpiamos los caches de APT
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Instalamos el Sonar Scanner CLI 
-# CORRECCIÓN #3: Usamos la versión 5.0.0.2796, la última estable verificada que funciona en esta URL.
-ARG SONAR_SCANNER_VERSION=5.0.0.2796 
-RUN curl -LO https://binaries.sonarsource.com/Distribution/sonar-scanner/sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip && \
-    unzip sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip -d /opt && \
-    rm sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip
+# 4. Copiamos el binario del Sonar Scanner desde la etapa 'scanner'
+# Esto es mucho más robusto que usar curl y unzip.
+COPY --from=scanner /opt/sonar-scanner /opt/sonar-scanner
 
-# 4. Configuramos las variables de entorno
-ENV SONAR_RUNNER_HOME=/opt/sonar-scanner-${SONAR_SCANNER_VERSION}
-ENV PATH=$PATH:/opt/sonar-scanner-${SONAR_SCANNER_VERSION}/bin
+# 5. Configuramos el PATH para que el binario 'sonar-scanner' sea accesible
+ENV PATH="/opt/sonar-scanner/bin:${PATH}"
 
-# 5. Punto de entrada
+# 6. Punto de entrada (para que pueda ser llamado como un binario simple)
 ENTRYPOINT ["sonar-scanner"]
