@@ -41,7 +41,7 @@ pipeline {
                         echo '--- Ejecutando Auditoría de Terraform ---'
                         dir("${TF_DIR}") {
                             // Usamos tu archivo de configuración .checkov.yaml montando el volumen raíz
-                            sh 'docker run --rm -v $(pwd)/../../:/tf bridgecrew/checkov:3 -d /tf/infrastructure/terraform --config-file /tf/.checkov.yaml --soft-fail'
+                            sh 'docker run --rm -v $(pwd)/../../:/tf bridgecrew/checkov:3 -d /tf/infrastructure/terraform  --soft-fail'
                         }
                     }
                 }
