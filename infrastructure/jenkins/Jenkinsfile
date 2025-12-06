@@ -1,105 +1,89 @@
 pipeline {
     agent any
 
-    // Definimos variables globales para el pipeline
     environment {
-        // Rutas relativas dentro del proyecto
         TF_DIR = 'infrastructure/terraform'
         BACKEND_DIR = 'backend'
-        
-        // Credenciales (En Jenkins real, esto se configura en el sistema, aquí es referencial)
-        AWS_CREDENTIALS_ID = 'aws-credentials-id'
+        // Nombre de la red de docker que viste en el paso 1
+        DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net' 
     }
 
     stages {
-        // --- ETAPA 1: CONSTRUCCIÓN Y PRUEBAS (Docker & PHP) ---
+        // ETAPA 1: CONSTRUCCIÓN Y PRUEBAS
         stage('Build & Test') {
             steps {
                 script {
                     echo '--- 1. Construyendo Contenedor de Aplicación ---'
-                    // Construimos la imagen Docker usando el Dockerfile que arreglamos
                     sh "docker build -t myd-app:latest ${BACKEND_DIR}"
                     
                     echo '--- 2. Ejecutando Pruebas Unitarias (PHPUnit) ---'
-                    // Corremos las pruebas DENTRO del contenedor para no necesitar PHP en Jenkins
-                    // Si falla el test, se detiene el pipeline.
                     sh "docker run --rm myd-app:latest php artisan test"
                 }
             }
         }
 
-        // --- ETAPA 2: ANÁLISIS DE CÓDIGO Y SEGURIDAD (Sonar & Checkov) ---
+        // ETAPA 2: CALIDAD Y SEGURIDAD
         stage('Quality & Security') {
             parallel {
-                stage('SonarQube Analysis') {
+                stage('SonarQube Analysis (PHP)') {
                     steps {
-                        echo '--- Ejecutando Análisis de Calidad de Código ---'
-                        // Requiere el plugin de SonarQube en Jenkins
-                        // withSonarQubeEnv('SonarQube Server') {
-                        //    sh 'sonar-scanner'
-                        // }
-                        echo 'SonarQube: ANÁLISIS COMPLETADO (Simulado)'
+                        script {
+                            echo '--- Ejecutando Análisis Real de SonarQube ---'
+                            // Usamos el plugin para obtener las credenciales (Token) automáticamente
+                            withSonarQubeEnv('SonarQube Server') {
+                                // Lanzamos un contenedor temporal con el escáner
+                                // Le pasamos el código (-v) y lo conectamos a la red (--network)
+                                sh """
+                                docker run --rm \
+                                    --network ${DOCKER_NETWORK} \
+                                    -v "\$(pwd)/${BACKEND_DIR}:/usr/src" \
+                                    sonarsource/sonar-scanner-cli \
+                                    -Dsonar.projectKey=myd-controles-backend \
+                                    -Dsonar.host.url=http://sonarqube:9000 \
+                                    -Dsonar.login=\$SONAR_AUTH_TOKEN
+                                """
+                            }
+                        }
                     }
                 }
-                stage('Infrastructure Security') {
+                
+                stage('Infrastructure Security (Checkov)') {
                     steps {
-                        echo '--- Ejecutando Auditoría de Terraform con Checkov ---'
+                        echo '--- Ejecutando Auditoría de Terraform ---'
                         dir("${TF_DIR}") {
-                            // Ejecutamos Checkov usando Docker (la forma profesional)
-                            // Usamos --soft-fail para que reporte errores pero no rompa el demo
-                            sh 'docker run --rm -v ${PWD}:/tf bridgecrew/checkov:3 -d /tf --soft-fail'
+                            // Usamos tu archivo de configuración .checkov.yaml montando el volumen raíz
+                            sh 'docker run --rm -v $(pwd)/../../:/tf bridgecrew/checkov:3 -d /tf/infrastructure/terraform --config-file /tf/.checkov.yaml --soft-fail'
                         }
                     }
                 }
             }
         }
 
-        // --- ETAPA 3: PLANIFICACIÓN DE INFRAESTRUCTURA (Terraform) ---
+        // ETAPA 3: PLANIFICACIÓN DE INFRAESTRUCTURA
         stage('Terraform Plan') {
             steps {
                 script {
-                    echo '--- Generando Plan de Infraestructura ---'
+                    echo '--- Planificando Infraestructura ---'
                     dir("${TF_DIR}") {
-                        // Inicializamos Terraform
                         sh 'terraform init'
-                        // Creamos el plan de ejecución
                         sh 'terraform plan -out=tfplan'
                     }
                 }
             }
         }
-
-        // --- ETAPA 4: DESPLIEGUE APROBADO ---
+        
+        // ETAPA 4: DESPLIEGUE (Solo con aprobación)
         stage('Deploy to AWS') {
-            // Paso de bloqueo manual: Un humano debe aprobar para ir a producción
             input {
-                message "¿Aprobar despliegue a AWS?"
-                ok "Sí, Desplegar"
+                message "¿Desplegar a Producción?"
+                ok "Sí, dale"
             }
             steps {
                 script {
-                    echo '--- Desplegando Infraestructura en AWS ---'
-                    dir("${TF_DIR}") {
-                        // Aplicamos los cambios (Simulado para el laboratorio)
-                        // sh 'terraform apply tfplan'
-                        echo 'Terraform Apply: EJECUTADO EXITOSAMENTE'
-                    }
+                    echo '--- Desplegando... (Simulado) ---'
+                    // sh 'terraform apply tfplan'
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline finalizado.'
-            // Limpieza de espacio en disco (borrar imágenes viejas)
-            sh 'docker system prune -f'
-        }
-        success {
-            echo 'PROYECTO DESPLEGADO CORRECTAMENTE EN AWS'
-        }
-        failure {
-            echo 'ERROR: El despliegue ha fallado. Revise los logs.'
         }
     }
 }
