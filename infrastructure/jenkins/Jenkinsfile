@@ -59,7 +59,8 @@ pipeline {
         stage('Terraform Plan') {
             agent {
                 docker {
-                    image "${TERRAFORM_IMAGE}"
+                    image "hashicorp/terraform:1.6.0"
+                    args "--entrypoint='' -u root"
                 }
             }
             steps {
