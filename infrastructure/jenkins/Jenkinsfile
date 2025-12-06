@@ -8,25 +8,8 @@ pipeline {
         DOCKER_NETWORK = 'proyecto-myd-arquitectura_cicd-net' 
     }
 
-    //stages {
-        // ETAPA 1: CONSTRUCCIÓN Y PRUEBAS
-       // stage('Build & Test') {
-        //    steps {
-          //      script {
-          ///          echo '--- 1. Construyendo Contenedor de Aplicación ---'
-            //        sh "docker build -t myd-app:latest ${BACKEND_DIR}"
-                    
-            //        echo '--- 2. Ejecutando Pruebas Unitarias (PHPUnit) ---'
-           //         sh """
-            ///            docker run --rm myd-app:latest /bin/sh -c "
-            //                cp .env.example .env && \
-             //               php artisan key:generate && \
-             //               php artisan test || true
-             //           "
-            //        """
-            //    }
-          //  }
-       // }
+    stages {
+        
 
         // ETAPA 2: CALIDAD Y SEGURIDAD
         stage('Quality & Security') {
